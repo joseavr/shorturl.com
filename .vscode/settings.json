@@ -1,0 +1,39 @@
+{
+	"editor.tabSize": 2,
+
+	"git.autofetch": true,
+
+	"explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.patterns": {
+		"*.ts": "${capture}.test.ts",
+		"*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.test.js",
+		"package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, *.config.js, *.config.ts, *.config.cjs, *.config.mjs , *.json, .*, *.ts"
+	},
+
+	"editor.codeActionsOnSave": {
+		"source.addMissingImports.ts": "explicit",
+		"quickfix.biome": "explicit",
+		"source.organizeImports.biome": "explicit",
+		"source.fixAll.biome": "explicit"
+	},
+	"notebook.codeActionsOnSave": {
+		"quickfix.biome": "explicit"
+	},
+
+	"editor.suggest.insertMode": "replace",
+
+	"editor.defaultFormatter": "biomejs.biome",
+	"diffEditor.ignoreTrimWhitespace": false,
+	"editor.formatOnSave": true,
+	"editor.formatOnPaste": true,
+
+	"files.insertFinalNewline": true,
+
+	"typescript.validate.enable": true,
+
+	"javascript.validate.enable": true,
+
+	"[javascript][javascriptreact][typescript][typescriptreact][json][css][tailwindcss]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	}
+}
