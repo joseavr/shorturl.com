@@ -54,7 +54,7 @@ app.get(
 const routes = app.route("/", url)
 
 //
-// Allow Hono to handle all HTTP methods
+// Hono will handle all HTTP methods
 // instead of Next.js
 //
 export const OPTIONS = handle(app)
