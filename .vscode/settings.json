@@ -25,7 +25,7 @@
 	"editor.defaultFormatter": "biomejs.biome",
 	"diffEditor.ignoreTrimWhitespace": false,
 	"editor.formatOnSave": true,
-	"editor.formatOnPaste": true,
+	"editor.formatOnPaste": false,
 
 	"files.insertFinalNewline": true,
 
