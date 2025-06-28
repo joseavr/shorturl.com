@@ -9,7 +9,7 @@
 		"enabled": true,
 		"indentStyle": "tab",
 		"indentWidth": 2,
-		"lineWidth": 80,
+		"lineWidth": 90,
 		"includes": ["src/**"]
 	},
 	"javascript": {
