@@ -11,11 +11,13 @@ config({ path: ".env" })
 // i.e: drizzle-kit generate --config=drizzle-dev.config.ts
 export default defineConfig({
 	dialect: "turso",
-	schema: "./src/database/drizzle/schemas/*",
-	out: "./src/database/drizzle/migrations",
+	schema: "./src/backend/database/drizzle/schemas",
+	out: "./src/backend/database/drizzle/migrations",
 	dbCredentials: {
-		url: process.env.TURSO_DATABASE_URL as string,
-		authToken: process.env.TURSO_AUTH_TOKEN || undefined
+		url: 
+			process.env.TURSO_DATABASE_LOCAL as string,
+		authToken: 
+			process.env.TURSO_AUTH_TOKEN
 	},
 	migrations: {
 		// migration files name are created by timestamp instead of by index
