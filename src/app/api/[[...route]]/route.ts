@@ -2,8 +2,8 @@ import packageJSON from "@@/package.json"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { Scalar } from "@scalar/hono-api-reference"
 import { handle } from "hono/vercel"
-
-import url from "@/routes/url/route"
+import { authRoute } from "@/backend/routes/auth.route"
+import { urlRoute } from "@/backend/routes/url.route"
 
 export const runtime = "edge"
 
@@ -51,7 +51,7 @@ app.get(
 // 2. /api/url
 // 3. /:shortURL-ID
 //
-const routes = app.route("/", url)
+const routes = app.route("/", urlRoute).route("/", authRoute)
 
 //
 // Hono will handle all HTTP methods

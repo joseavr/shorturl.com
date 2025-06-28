@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 
-const app = new OpenAPIHono()
+export const urlRoute = new OpenAPIHono()
 	.openapi(
 		createRoute({
 			method: "get",
@@ -26,6 +26,27 @@ const app = new OpenAPIHono()
 		}
 	)
 
-
-
-export default app
+	.openapi(
+		createRoute({
+			method: "get",
+			path: "/api/123",
+			tags: ["Url"],
+			responses: {
+				200: {
+					description: "Testing",
+					content: {
+						"application/json": {
+							schema: z
+								.object({
+									message: z.string()
+								})
+								.openapi("URLResponse")
+						}
+					}
+				}
+			}
+		}),
+		(c) => {
+			return c.json({ message: "getting shorturl" }, 200)
+		}
+	)
