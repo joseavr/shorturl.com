@@ -1,13 +1,13 @@
-import { DrizzleError } from "drizzle-orm"
 import { Hono } from "hono"
 import { GoogleProvider } from "@/backend/auth/artic/google.provider"
-import { OAuthParametersError, SignJwtError } from "../auth/artic/errors"
+import { OAuthParametersError } from "../auth/artic/errors"
 import { findOrCreateUserByProviderAccount } from "../auth/artic/helpers"
 import {
 	generateTokenForSession,
 	getSessionUser,
 	setSessionTokenCookie
 } from "../auth/artic/session"
+import { handleError } from "../shared/handle-error"
 
 const authRoute = new Hono()
 
@@ -43,48 +43,7 @@ authRoute.get("/google/callback", async (c) => {
 		// TODO login success, then redirect to protected route.
 		return c.json({ message: "Login successful", user }, 200)
 	} catch (e) {
-		if (e instanceof DrizzleError) {
-			return c.json(
-				{
-					error: e.name,
-					message: e.message
-				},
-				500
-			)
-		}
-
-		if (e instanceof SignJwtError) {
-			return c.json(
-				{
-					error: e.name,
-					message: e.message
-				},
-				500
-			)
-		}
-
-		if (e instanceof OAuthParametersError) {
-			return c.json(
-				{
-					error: e.name,
-					message: e.message
-				},
-				400
-			)
-		}
-
-		console.error({
-			error: "\n\nUnkown Internal Server Error:\n",
-			stack: (e as Error).stack
-		})
-
-		return c.json(
-			{
-				error: "Unkown Internal Server Error",
-				message: "An unexpected error occurred during authentication"
-			},
-			500
-		)
+		handleError(e, c)
 	}
 })
 
