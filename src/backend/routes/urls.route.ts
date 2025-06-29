@@ -46,6 +46,7 @@ export const urlsRoute = new OpenAPIHono()
 				}
 			}
 		}),
+		// TODO protectedMiddleware() #here
 		(c) => {
 			return c.json({ message: "getting shorturl" }, 200)
 		}

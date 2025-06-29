@@ -4,7 +4,7 @@ import { db } from "@/backend/database"
 import { accountTable } from "@/backend/database/drizzle/schemas"
 import { google } from "./constants"
 import { RefreshTokenError, StateOrVerifierError } from "./errors"
-import type { OAuthProvider } from "./types"
+import type { AuthAccount, AuthUser, OAuthProvider } from "./types"
 
 const tempStore = new Map<string, string>()
 
@@ -58,11 +58,13 @@ export const GoogleProvider: OAuthProvider = {
 			picture: string
 		}
 
-		// TODO: Infer types with Zod + Drizzle
-		return {
+		const user: AuthUser = {
 			email: claims.email,
 			name: claims.name,
-			picture: claims.picture,
+			image: claims.picture
+		}
+
+		const account: AuthAccount = {
 			provider: "google",
 			providerAccountId: claims.sub,
 			accessToken: tokens.accessToken(),
@@ -71,6 +73,11 @@ export const GoogleProvider: OAuthProvider = {
 			idToken: tokens.idToken(),
 			scope: tokens.scopes().toString(),
 			tokenType: tokens.tokenType()
+		}
+
+		return {
+			user,
+			account
 		}
 	},
 

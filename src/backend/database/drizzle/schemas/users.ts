@@ -1,14 +1,13 @@
 import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
-import { createInsertSchema, createSelectSchema } from "drizzle-zod"
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
 
 export const userTable = sqliteTable("users", {
 	id: text()
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
-	name: text(),
-	email: text().unique(),
-	emailVerified: integer({ mode: "timestamp_ms" }),
-	image: text()
+	name: text().notNull(),
+	email: text().unique().notNull(),
+	image: text().notNull()
 })
 
 export const accountTable = sqliteTable(
@@ -38,8 +37,12 @@ export const accountTable = sqliteTable(
  * Zod Validation schemas
  *
  ********************/
-export const insertUserSchema = createInsertSchema(userTable)
 export const selectUserSchema = createSelectSchema(userTable)
+export const insertUserSchema = createInsertSchema(userTable).omit({
+	id: true
+})
+export const updateUserSchema = createUpdateSchema(userTable)
 
-export const insertAccountSchema = createInsertSchema(accountTable)
 export const selectAccountSchema = createSelectSchema(accountTable)
+export const insertAccountSchema = createInsertSchema(accountTable)
+export const updateAccountSchema = createUpdateSchema(accountTable)

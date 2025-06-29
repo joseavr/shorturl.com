@@ -1,5 +1,6 @@
 import { DrizzleError } from "drizzle-orm"
 import { Hono } from "hono"
+import { setCookie } from "hono/cookie"
 import { GoogleProvider } from "@/backend/auth/artic/google.provider"
 import { OAuthParametersError, SignJwtError } from "../auth/artic/errors"
 import { findOrCreateUserByProviderAccount } from "../auth/artic/helpers"
@@ -29,33 +30,18 @@ authRoute.get("/google/callback", async (c) => {
 
 		const result = await GoogleProvider.validateCallback(code, state)
 
-		// TODO fix types with zod
-		const user = await findOrCreateUserByProviderAccount(
-			{
-				email: result.email,
-				name: result.name,
-				picture: result.picture
-			},
-			{
-				provider: "google",
-				providerAccountId: result.providerAccountId,
-				accessToken: result.accessToken,
-				refreshToken: result.refreshToken,
-				expiresAt: result.expiresAt,
-				idToken: result.idToken,
-				scope: result.scope,
-				tokenType: result.tokenType
-			}
-		)
+		const user = await findOrCreateUserByProviderAccount(result.user, result.account)
 
-		// TODO fix types with zod
-		const sessionCookie = await createSessionCookie(user.id, user.email!, "google")
+		const sessionCookie = await createSessionCookie(user.id, user.email, "google")
 
 		// Use JWT Session Strategy by storing the JWT in an HTTP-only cookie
-		c.header(
-			"Set-Cookie",
-			`${sessionCookie.name}=${sessionCookie.value}; Path=${sessionCookie.options.path}; HttpOnly; Max-Age=${sessionCookie.options.maxAge}; SameSite=${sessionCookie.options.sameSite}; Secure`
-		)
+		setCookie(c, sessionCookie.name, sessionCookie.value, {
+			path: sessionCookie.options.path,
+			httpOnly: true,
+			maxAge: sessionCookie.options.maxAge,
+			sameSite: sessionCookie.options.sameSite as "Strict",
+			secure: sessionCookie.options.secure
+		})
 
 		// TODO login success, then redirect to protected route.
 		return c.json({ message: "Login successful", user }, 200)
@@ -112,11 +98,12 @@ authRoute.get("/api/auth/refresh", async (c) => {
 	if (!session)
 		return c.json({ error: "UnAuthorized", message: "Token missing or invalid" }, 401)
 
-	// Fetch refresh token from `accounts` table and call `refreshAccessToken(userId)`
+	// Fetch refresh token from `accounts` table and
+	// call `refreshAccessToken(userId)`
 	// Save new tokens to DB
-	const result = await GoogleProvider.refreshAcessToken(session)
+	await GoogleProvider.refreshAcessToken(session)
 
-	return c.json({ message: "Tokens refreshed", data: result })
+	return c.json({ message: "Tokens refreshed" }, 200)
 })
 
 export { authRoute }

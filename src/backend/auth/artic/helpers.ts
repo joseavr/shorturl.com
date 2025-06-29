@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm"
 import { db } from "@/backend/database"
 import { accountTable, userTable } from "@/backend/database/drizzle/schemas"
-import type { OAuthAccount, OAuthUser } from "./types"
+import type { AuthAccount, AuthUser, AuthUserWithId } from "./types"
 
 export const findUserByEmail = async (email: string) => {
 	return db.query.userTable.findFirst({
@@ -11,9 +11,9 @@ export const findUserByEmail = async (email: string) => {
 
 // TODO Fix types with zod
 export const findOrCreateUserByProviderAccount = async (
-	user: OAuthUser,
-	account: OAuthAccount
-) => {
+	user: AuthUser,
+	account: AuthAccount
+): Promise<AuthUserWithId> => {
 	const existingUser = await findUserByEmail(user.email)
 
 	//
@@ -29,14 +29,14 @@ export const findOrCreateUserByProviderAccount = async (
 				access_token: account.accessToken,
 				expires_at: account.expiresAt,
 				id_token: account.idToken,
-				// google might (idk) give new refreshToken at second time
-				// if refreshToken is undefined, then drizzle ignores it
+				// Google might (idk) give new refreshToken at second time.
+				// Drizzle ignores updating refreshToken if undefined.
 				refresh_token: account.refreshToken
 			})
 			.where(
 				and(
-					// accountTables can share userId field, so better
-					// check on uniques such as provider and providerAccountId
+					// Many accountTable can share userId field,
+					// so better check on uniques fields
 					eq(accountTable.provider, account.provider),
 					eq(accountTable.providerAccountId, account.providerAccountId)
 				)
@@ -49,18 +49,17 @@ export const findOrCreateUserByProviderAccount = async (
 	// Otherwise, insert new user in db
 	// and insert its account table
 	//
-	const newUser = await db
+	const [newUser] = await db
 		.insert(userTable)
 		.values({
 			name: user.name,
 			email: user.email,
-			image: user.picture,
-			emailVerified: new Date()
+			image: user.image
 		})
 		.returning({ id: userTable.id })
 
 	await db.insert(accountTable).values({
-		userId: newUser[0].id,
+		userId: newUser.id,
 		provider: account.provider,
 		providerAccountId: account.providerAccountId,
 		access_token: account.accessToken,
@@ -73,6 +72,6 @@ export const findOrCreateUserByProviderAccount = async (
 
 	return {
 		...user,
-		id: newUser[0].id
+		id: newUser.id
 	}
 }

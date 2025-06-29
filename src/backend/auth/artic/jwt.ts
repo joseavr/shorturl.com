@@ -2,7 +2,7 @@ import { sign, verify } from "hono/jwt"
 import type { SignatureAlgorithm } from "hono/utils/jwt/jwa"
 import type { JWTPayload } from "hono/utils/jwt/types"
 import { SignJwtError } from "./errors"
-import type { AppJWTPayload } from "./types"
+import type { AppJWTPayload, SessionCookieOptions } from "./types"
 
 const secret = process.env.JWT_SECRET as string
 
@@ -10,6 +10,8 @@ export const signToken = async (
 	payload: JWTPayload,
 	alg: SignatureAlgorithm = "HS256"
 ) => {
+	// HS256 accepts any string `secret`
+	// RS256 is more complicated to get secret
 	return (await sign(payload, secret, alg)
 		.then((token) => [null, token])
 		.catch((e) => [e, null])) as [Error, null] | [null, string]
@@ -25,12 +27,14 @@ export const createSessionCookie = async (
 	userId: string,
 	email: string,
 	provider: string
-) => {
+): Promise<SessionCookieOptions> => {
+	//
+	// 1. Create payload
+	//
 	const now = Math.floor(Date.now() / 1000)
 	const exp = now + 60 * 60 * 24 * 7 // Expires in 7 days (matches cookie maxAge)
-
 	const payload: AppJWTPayload = {
-		sub: userId,
+		userId: userId,
 		provider: provider,
 		email: email,
 		// following 3 fields are needed for hono/jwt
@@ -39,8 +43,9 @@ export const createSessionCookie = async (
 		exp: exp // expires in 7 days
 	}
 
-	// HS256 accepts any string `secret`
-	// RS256 is more complicated to get secret
+	//
+	// 2. Sign payload and get token
+	//
 	const [error, token] = await signToken(payload)
 
 	if (error) {
@@ -49,8 +54,9 @@ export const createSessionCookie = async (
 		)
 	}
 
-	// Returns all session cookie options including the jwt
-	// to set in a cookie http-only
+	//
+	// 3. Return token with the http-only cookie options
+	//
 	return {
 		name: "session-token",
 		value: token,
@@ -64,24 +70,15 @@ export const createSessionCookie = async (
 	}
 }
 
-export const getSessionUser = async (
-	req: Request
-): Promise<{
-	userId: string
-	provider: string
-} | null> => {
+export const getSessionUser = async (req: Request): Promise<AppJWTPayload | null> => {
 	const cookie = req.headers.get("Cookie")?.match(/session-token=([^;]+)/)
 	if (!cookie) return null
 
-	const [error, decoded] = await verifyToken(cookie[1])
+	const [error, decodedToken] = await verifyToken(cookie[1])
 
 	if (error) {
 		return null
 	}
 
-	// TODO type with zod
-	return {
-		userId: decoded.sub,
-		provider: decoded.provider
-	}
+	return decodedToken
 }

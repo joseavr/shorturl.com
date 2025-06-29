@@ -12,7 +12,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 
 	// 2. Attach user info to context / request
 	c.set("user", {
-		id: decodedToken.sub,
+		id: decodedToken.userId,
 		email: decodedToken.email,
 		provider: decodedToken.provider
 	})
@@ -25,7 +25,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 	if (shouldRefreshJwt) {
 		// * this can throw SignJwtError
 		const sessionCookie = await createSessionCookie(
-			decodedToken.sub,
+			decodedToken.userId,
 			decodedToken.email,
 			decodedToken.provider
 		)
