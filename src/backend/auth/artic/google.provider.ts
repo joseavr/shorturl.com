@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm"
 import { db } from "@/backend/database"
 import { accountTable } from "@/backend/database/drizzle/schemas"
 import { google } from "./constants"
-import { StateOrVerifierError } from "./errors"
+import { RefreshTokenError, StateOrVerifierError } from "./errors"
 import type { OAuthProvider } from "./types"
 
 const tempStore = new Map<string, string>()
@@ -74,68 +74,55 @@ export const GoogleProvider: OAuthProvider = {
 		}
 	},
 
+	/**
+	 * Use function in places where really needed
+	 * i.e do not use in authMiddleware since it
+	 * 		 defeats the purpose of being stateless
+	 * 		 (no need of calling db)
+	 */
 	async refreshAcessToken(session) {
-		try {
-			// Find `refreshToken` from `accounts` table
-			// by the userID and provider="google"|"githhub"|...
-			const { refreshToken } = (
-				await db
-					.select({
-						refreshToken: accountTable.refresh_token
-					})
-					.from(accountTable)
-					.where(
-						and(
-							eq(accountTable.userId, session.userId),
-							eq(accountTable.provider, session.provider)
-						)
-					)
-			)[0]
-
-			if (!refreshToken)
-				throw new Error(
-					"line 89 - google.provider.ts: There is no refreshToken. Must have one to refresh"
+		// Find `refreshToken` from `accounts` table
+		// by the userID and provider="google"|"githhub"|...
+		const account = await db
+			.select({
+				refreshToken: accountTable.refresh_token,
+				expiresAt: accountTable.expires_at
+			})
+			.from(accountTable)
+			.where(
+				and(
+					eq(accountTable.userId, session.userId),
+					eq(accountTable.provider, session.provider)
 				)
+			)
+			.limit(1)
+			.then((arr) => arr[0])
 
-			const tokens = await google.refreshAccessToken(refreshToken)
-			const accessToken = tokens.accessToken()
-			const accessTokenExpiresAt = tokens.accessTokenExpiresAt()
-			const newOrOldRefreshToken = tokens.hasRefreshToken()
-				? tokens.refreshToken()
-				: refreshToken
+		if (!account.refreshToken || !account.expiresAt)
+			throw new RefreshTokenError("Missing Refresh Token or expiration")
 
-			// Save new tokens to db
-			await db
-				.update(accountTable)
-				.set({
-					access_token: accessToken,
-					expires_at: Number(accessTokenExpiresAt),
-					refresh_token: newOrOldRefreshToken
-				})
-				.where(
-					and(
-						eq(accountTable.userId, session.userId),
-						eq(accountTable.provider, session.provider)
-					)
+		// if provider token still valid then early return
+		if (account.expiresAt > Date.now()) return
+
+		// otherwise continue refreshToken process
+		const tokens = await google.refreshAccessToken(account.refreshToken)
+		if (!tokens) throw new RefreshTokenError("Google could not exchange this token.")
+
+		// Save new tokens to db
+		await db
+			.update(accountTable)
+			.set({
+				access_token: tokens.accessToken(),
+				expires_at: Number(tokens.accessTokenExpiresAt()),
+				refresh_token: tokens.hasRefreshToken()
+					? tokens.refreshToken()
+					: account.refreshToken
+			})
+			.where(
+				and(
+					eq(accountTable.userId, session.userId),
+					eq(accountTable.provider, session.provider)
 				)
-
-			return {
-				accessToken,
-				expiresAt: Number(accessTokenExpiresAt),
-				refreshToken: newOrOldRefreshToken
-			}
-		} catch (e) {
-			if (e instanceof arctic.OAuth2RequestError) {
-				throw new Error(
-					"arctic.OAuth2RequestError: Invalid authorization code, credentials, or redirect URI\n",
-					e
-				)
-			}
-			if (e instanceof arctic.ArcticFetchError) {
-				throw new Error("arctic.ArcticFetchError: Failed to call `fetch()`\n", e)
-			}
-			// Parse error
-			throw new Error(`internal-server-error ${e}`)
-		}
+			)
 	}
 }

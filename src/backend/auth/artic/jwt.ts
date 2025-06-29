@@ -1,31 +1,56 @@
 import { sign, verify } from "hono/jwt"
+import type { SignatureAlgorithm } from "hono/utils/jwt/jwa"
+import type { JWTPayload } from "hono/utils/jwt/types"
 import { SignJwtError } from "./errors"
+import type { AppJWTPayload } from "./types"
 
 const secret = process.env.JWT_SECRET as string
 
-export const createSessionCookie = async (userId: string, provider: string) => {
-	const now = Math.floor(Date.now() / 1000)
+export const signToken = async (
+	payload: JWTPayload,
+	alg: SignatureAlgorithm = "HS256"
+) => {
+	return (await sign(payload, secret, alg)
+		.then((token) => [null, token])
+		.catch((e) => [e, null])) as [Error, null] | [null, string]
+}
 
-	const payload = {
+export const verifyToken = async (cookie: string) => {
+	return (await verify(cookie, secret)
+		.then((decoded) => [null, decoded])
+		.catch((e: Error) => [e, null])) as [Error, null] | [null, AppJWTPayload]
+}
+
+export const createSessionCookie = async (
+	userId: string,
+	email: string,
+	provider: string
+) => {
+	const now = Math.floor(Date.now() / 1000)
+	const exp = now + 60 * 60 * 24 * 7 // Expires in 7 days (matches cookie maxAge)
+
+	const payload: AppJWTPayload = {
 		sub: userId,
 		provider: provider,
+		email: email,
+		// following 3 fields are needed for hono/jwt
 		iat: now, // Issued at time
 		nbf: now, // Not valid before time
-		exp: now + 60 * 60 * 24 * 7 // Expires in 7 days (matches cookie maxAge)
+		exp: exp // expires in 7 days
 	}
 
-	// HS256 accepts `secret` as any string
-	// RS256 is more complicated for the secret
-	const [error, token] = await sign(payload, secret, "HS256")
-		.then((token) => [undefined, token])
-		.catch((e) => [e, undefined])
+	// HS256 accepts any string `secret`
+	// RS256 is more complicated to get secret
+	const [error, token] = await signToken(payload)
 
 	if (error) {
 		throw new SignJwtError(
-			"Could not sign the payload. Make sure you are passing the right secret for the algoirthm. Note: some algorithms needs the secret to be format in a specific way."
+			"Could not sign the payload. Make sure you are passing the right secret for the algorithm. Note: some algorithms needs the secret to be format in a specific way."
 		)
 	}
 
+	// Returns all session cookie options including the jwt
+	// to set in a cookie http-only
 	return {
 		name: "session-token",
 		value: token,
@@ -34,7 +59,7 @@ export const createSessionCookie = async (userId: string, provider: string) => {
 			secure: true,
 			path: "/",
 			sameSite: "Strict",
-			maxAge: 60 * 60 * 24 * 7 // 7 days
+			maxAge: exp // 7 days
 		}
 	}
 }
@@ -45,19 +70,18 @@ export const getSessionUser = async (
 	userId: string
 	provider: string
 } | null> => {
-	const cookie = req.headers.get("cookie")?.match(/session-token=([^;]+)/)
+	const cookie = req.headers.get("Cookie")?.match(/session-token=([^;]+)/)
 	if (!cookie) return null
 
-	try {
-		const decoded = await verify(cookie[1], secret)
+	const [error, decoded] = await verifyToken(cookie[1])
 
-		// TODO type with zod
-		return {
-			userId: decoded.sub as string,
-			provider: decoded.provider as string
-		}
-	} catch (e) {
-		console.error("Line 41 - jwt.ts: Failed to verify cookie:\n", e)
+	if (error) {
 		return null
+	}
+
+	// TODO type with zod
+	return {
+		userId: decoded.sub,
+		provider: decoded.provider
 	}
 }

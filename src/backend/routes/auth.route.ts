@@ -29,6 +29,7 @@ authRoute.get("/api/auth/google/callback", async (c) => {
 
 		const result = await GoogleProvider.validateCallback(code, state)
 
+		// TODO fix types with zod
 		const user = await findOrCreateUserByProviderAccount(
 			{
 				email: result.email,
@@ -47,7 +48,8 @@ authRoute.get("/api/auth/google/callback", async (c) => {
 			}
 		)
 
-		const sessionCookie = await createSessionCookie(user.id, "google")
+		// TODO fix types with zod
+		const sessionCookie = await createSessionCookie(user.id, user.email!, "google")
 
 		// Use JWT Session Strategy by storing the JWT in an HTTP-only cookie
 		c.header(
@@ -103,10 +105,12 @@ authRoute.get("/api/auth/google/callback", async (c) => {
 	}
 })
 
+// Refresh Token Rotation
 authRoute.get("/api/auth/refresh", async (c) => {
 	const session = await getSessionUser(c.req.raw)
 
-	if (!session) return c.text("Unauthorized", 401)
+	if (!session)
+		return c.json({ error: "UnAuthorized", message: "Token missing or invalid" }, 401)
 
 	// Fetch refresh token from `accounts` table and call `refreshAccessToken(userId)`
 	// Save new tokens to DB

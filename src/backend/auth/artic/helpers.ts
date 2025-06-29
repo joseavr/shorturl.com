@@ -9,6 +9,7 @@ export const findUserByEmail = async (email: string) => {
 	})
 }
 
+// TODO Fix types with zod
 export const findOrCreateUserByProviderAccount = async (
 	user: OAuthUser,
 	account: OAuthAccount
@@ -27,7 +28,10 @@ export const findOrCreateUserByProviderAccount = async (
 			.set({
 				access_token: account.accessToken,
 				expires_at: account.expiresAt,
-				id_token: account.idToken
+				id_token: account.idToken,
+				// google might (idk) give new refreshToken at second time
+				// if refreshToken is undefined, then drizzle ignores it
+				refresh_token: account.refreshToken
 			})
 			.where(
 				and(

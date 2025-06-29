@@ -28,3 +28,10 @@ export class OAuthParametersError extends Error {
 		this.name = "OAuthParametersError"
 	}
 }
+
+export class RefreshTokenError extends Error {
+	constructor(message: string) {
+		super(message)
+		this.name = "RefreshTokenError"
+	}
+}
