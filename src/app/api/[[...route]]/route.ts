@@ -3,7 +3,7 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { Scalar } from "@scalar/hono-api-reference"
 import { handle } from "hono/vercel"
 import { authRoute } from "@/backend/routes/auth.route"
-import { urlRoute } from "@/backend/routes/url.route"
+import { urlsRoute } from "@/backend/routes/urls.route"
 
 export const runtime = "edge"
 
@@ -12,12 +12,12 @@ export const runtime = "edge"
 // 		const app = new Hono().basePath("/api")
 // We will use OpenAPIHono() to document our endpoints
 //
-const app = new OpenAPIHono()
+const app = new OpenAPIHono().basePath("/api")
 
 //
 // Set OpenAPI at url: /doc
 //
-app.doc("/api/doc", {
+app.doc("/doc", {
 	openapi: "3.0.0",
 	info: {
 		version: packageJSON.version,
@@ -51,7 +51,10 @@ app.get(
 // 2. /api/url
 // 3. /:shortURL-ID
 //
-const routes = app.route("/", urlRoute).route("/", authRoute)
+const routes = app
+	.route("/auth", authRoute)
+	// .route("/users", usersRoute)
+	.route("/urls", urlsRoute)
 
 //
 // Hono will handle all HTTP methods

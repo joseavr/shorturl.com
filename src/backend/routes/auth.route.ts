@@ -8,7 +8,7 @@ import { createSessionCookie, getSessionUser } from "../auth/artic/jwt"
 const authRoute = new Hono()
 
 // Start Google OAuth
-authRoute.get("/api/auth/google", (c) => {
+authRoute.get("/google", (c) => {
 	const authUrl = GoogleProvider.getAuthURL()
 	console.log(authUrl)
 
@@ -16,7 +16,7 @@ authRoute.get("/api/auth/google", (c) => {
 })
 
 // Google OAuth callback
-authRoute.get("/api/auth/google/callback", async (c) => {
+authRoute.get("/google/callback", async (c) => {
 	const { searchParams } = new URL(c.req.url)
 
 	// "code" and "state" found in the searchParams sent by Google.
