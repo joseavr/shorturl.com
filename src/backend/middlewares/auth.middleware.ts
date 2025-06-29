@@ -7,23 +7,27 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 	const jwt = getCookie(c, "session-token")
 	if (!jwt) return c.json({ error: "Unauthorized" }, 401) // TODO redirect to login
 
-	const [error, payload] = await verifyToken(jwt)
+	const [error, decodedToken] = await verifyToken(jwt)
 	if (error) return c.json({ error: "Unauthorized" }, 401) // TODO redirect to login
 
 	// 2. Attach user info to context / request
-	c.set("user", { id: payload.sub, email: payload.email, provider: payload.provider })
+	c.set("user", {
+		id: decodedToken.sub,
+		email: decodedToken.email,
+		provider: decodedToken.provider
+	})
 
 	// 3. Re-issue JWT if about to expire (< 5 min left)
 	const now = Math.floor(Date.now() / 1000)
-	const exp = payload.exp
+	const exp = decodedToken.exp
 	const shouldRefreshJwt = exp && exp - now < 5 * 60
 
 	if (shouldRefreshJwt) {
 		// * this can throw SignJwtError
 		const sessionCookie = await createSessionCookie(
-			payload.sub,
-			payload.email,
-			payload.provider
+			decodedToken.sub,
+			decodedToken.email,
+			decodedToken.provider
 		)
 
 		c.header(

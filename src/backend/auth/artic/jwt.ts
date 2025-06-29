@@ -15,8 +15,8 @@ export const signToken = async (
 		.catch((e) => [e, null])) as [Error, null] | [null, string]
 }
 
-export const verifyToken = async (cookie: string) => {
-	return (await verify(cookie, secret)
+export const verifyToken = async (token: string) => {
+	return (await verify(token, secret)
 		.then((decoded) => [null, decoded])
 		.catch((e: Error) => [e, null])) as [Error, null] | [null, AppJWTPayload]
 }
