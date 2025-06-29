@@ -1,10 +1,13 @@
 import { DrizzleError } from "drizzle-orm"
 import { Hono } from "hono"
-import { setCookie } from "hono/cookie"
 import { GoogleProvider } from "@/backend/auth/artic/google.provider"
 import { OAuthParametersError, SignJwtError } from "../auth/artic/errors"
 import { findOrCreateUserByProviderAccount } from "../auth/artic/helpers"
-import { createSessionCookie, getSessionUser } from "../auth/artic/jwt"
+import {
+	generateTokenForSession,
+	getSessionUser,
+	setSessionTokenCookie
+} from "../auth/artic/session"
 
 const authRoute = new Hono()
 
@@ -32,16 +35,10 @@ authRoute.get("/google/callback", async (c) => {
 
 		const user = await findOrCreateUserByProviderAccount(result.user, result.account)
 
-		const sessionCookie = await createSessionCookie(user.id, user.email, "google")
+		const { token, expires } = await generateTokenForSession(user)
 
 		// Use JWT Session Strategy by storing the JWT in an HTTP-only cookie
-		setCookie(c, sessionCookie.name, sessionCookie.value, {
-			path: sessionCookie.options.path,
-			httpOnly: true,
-			maxAge: sessionCookie.options.maxAge,
-			sameSite: sessionCookie.options.sameSite as "Strict",
-			secure: sessionCookie.options.secure
-		})
+		setSessionTokenCookie(c, token, expires)
 
 		// TODO login success, then redirect to protected route.
 		return c.json({ message: "Login successful", user }, 200)

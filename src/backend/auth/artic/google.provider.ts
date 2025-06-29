@@ -1,11 +1,16 @@
+/** biome-ignore-all lint/style/noNonNullAssertion: only for process.env until Implement .env with zod */
 import * as arctic from "arctic"
 import { and, eq } from "drizzle-orm"
 import { db } from "@/backend/database"
 import { accountTable } from "@/backend/database/drizzle/schemas"
-import { google } from "./constants"
 import { RefreshTokenError, StateOrVerifierError } from "./errors"
 import type { AuthAccount, AuthUser, OAuthProvider } from "./types"
 
+// constants
+const clientId = process.env.GOOGLE_CLIENT_ID!
+const clientSecret = process.env.GOOGLE_CLIENT_SECRET!
+const redirectUri = process.env.GOOGLE_REDIRECT_URI!
+const google = new arctic.Google(clientId, clientSecret, redirectUri)
 const tempStore = new Map<string, string>()
 
 export const GoogleProvider: OAuthProvider = {
@@ -61,7 +66,8 @@ export const GoogleProvider: OAuthProvider = {
 		const user: AuthUser = {
 			email: claims.email,
 			name: claims.name,
-			image: claims.picture
+			image: claims.picture,
+			provider: "google"
 		}
 
 		const account: AuthAccount = {
@@ -109,6 +115,7 @@ export const GoogleProvider: OAuthProvider = {
 			throw new RefreshTokenError("Missing Refresh Token or expiration")
 
 		// if provider token still valid then early return
+		// Note: expiresAt is in ms
 		if (account.expiresAt > Date.now()) return
 
 		// otherwise continue refreshToken process

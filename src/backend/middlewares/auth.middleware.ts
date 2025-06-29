@@ -1,40 +1,38 @@
 import type { MiddlewareHandler } from "hono"
-import { getCookie } from "hono/cookie"
-import { createSessionCookie, verifyToken } from "../auth/artic/jwt"
+import { reIssueToken, verifyToken } from "../auth/artic/jwt"
+import { getSessionToken, setSessionTokenCookie } from "../auth/artic/session"
 
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
 	// 1. Get and Verify the session JWT
-	const jwt = getCookie(c, "session-token")
+	const jwt = getSessionToken(c)
 	if (!jwt) return c.json({ error: "Unauthorized" }, 401) // TODO redirect to login
 
 	const [error, decodedToken] = await verifyToken(jwt)
 	if (error) return c.json({ error: "Unauthorized" }, 401) // TODO redirect to login
 
+	//
+	// At this point, the JWT token has been verified.
+	// We assume the user is valid and authorize them
+	// to access protected routes.
+	//
+
 	// 2. Attach user info to context / request
 	c.set("user", {
 		id: decodedToken.userId,
-		email: decodedToken.email,
-		provider: decodedToken.provider
+		name: decodedToken.name,
+		image: decodedToken.image,
+		email: decodedToken.email
 	})
 
 	// 3. Re-issue JWT if about to expire (< 5 min left)
-	const now = Math.floor(Date.now() / 1000)
-	const exp = decodedToken.exp
-	const shouldRefreshJwt = exp && exp - now < 5 * 60
+	const [validationError, data] = await reIssueToken(jwt)
+	if (validationError) return c.json({ error: "Unauthorized" }, 401) // TODO redirect to login
 
-	if (shouldRefreshJwt) {
-		// * this can throw SignJwtError
-		const sessionCookie = await createSessionCookie(
-			decodedToken.userId,
-			decodedToken.email,
-			decodedToken.provider
-		)
+	// no data -> should not refreshToken
+	if (data === null) return next()
 
-		c.header(
-			"Set-Cookie",
-			`${sessionCookie.name}=${sessionCookie.value}; Path=${sessionCookie.options.path}; HttpOnly; Max-Age=${sessionCookie.options.maxAge}; SameSite=${sessionCookie.options.sameSite}; Secure`
-		)
-	}
+	// data -> refreshed tokens then set to cookies
+	setSessionTokenCookie(c, data.token, data.expires)
 
 	return next()
 }

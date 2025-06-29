@@ -1,13 +1,12 @@
 import type { JWTPayload } from "hono/utils/jwt/types"
 
 export interface AuthUser {
-	id?: string
 	email: string
 	name: string
 	image: string
+	provider: string
 }
-
-export type AuthUserWithId = AuthUser & { id: string }
+export type AuthUserWithId = AuthUser & { userId: string }
 
 export interface AuthAccount {
 	provider: "google" | "gihtub"
@@ -34,20 +33,10 @@ export interface OAuthProvider {
 
 // 'type' shows you the fields on hover
 // while 'interface' does not
-export type AppJWTPayload = JWTPayload & {
-	userId: string
-	email: string
-	provider: string
-}
+export type AppJWTPayload = JWTPayload & AuthUserWithId
+export type UserSession = AppJWTPayload
 
-export type SessionCookieOptions = {
-	name: string
-	value: string
-	options: {
-		httpOnly: boolean
-		secure: boolean
-		path: string
-		sameSite: string
-		maxAge: number
-	}
+export type TokenForSessionResult = {
+	token: string
+	expires: Date
 }

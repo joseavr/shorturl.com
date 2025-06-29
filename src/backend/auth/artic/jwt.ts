@@ -1,8 +1,8 @@
 import { sign, verify } from "hono/jwt"
 import type { SignatureAlgorithm } from "hono/utils/jwt/jwa"
 import type { JWTPayload } from "hono/utils/jwt/types"
-import { SignJwtError } from "./errors"
-import type { AppJWTPayload, SessionCookieOptions } from "./types"
+import { generateTokenForSession } from "./session"
+import type { AppJWTPayload } from "./types"
 
 const secret = process.env.JWT_SECRET as string
 
@@ -23,62 +23,27 @@ export const verifyToken = async (token: string) => {
 		.catch((e: Error) => [e, null])) as [Error, null] | [null, AppJWTPayload]
 }
 
-export const createSessionCookie = async (
-	userId: string,
-	email: string,
-	provider: string
-): Promise<SessionCookieOptions> => {
-	//
-	// 1. Create payload
-	//
+export const reIssueToken = async (
+	token: string
+): Promise<[Error, null] | [null, null] | [null, { token: string; expires: Date }]> => {
+	const [error, decodedToken] = await verifyToken(token)
+	if (error) return [error, null]
+
+	// Re-issue JWT if about to expire (< 5 min left)
 	const now = Math.floor(Date.now() / 1000)
-	const exp = now + 60 * 60 * 24 * 7 // Expires in 7 days (matches cookie maxAge)
-	const payload: AppJWTPayload = {
-		userId: userId,
-		provider: provider,
-		email: email,
-		// following 3 fields are needed for hono/jwt
-		iat: now, // Issued at time
-		nbf: now, // Not valid before time
-		exp: exp // expires in 7 days
-	}
+	const exp = decodedToken.exp
+	const shouldRefreshJwt = exp && exp - now < 5 * 60 // if < 5 min left
 
-	//
-	// 2. Sign payload and get token
-	//
-	const [error, token] = await signToken(payload)
+	if (!shouldRefreshJwt) return [null, null]
 
-	if (error) {
-		throw new SignJwtError(
-			"Could not sign the payload. Make sure you are passing the right secret for the algorithm. Note: some algorithms needs the secret to be format in a specific way."
-		)
-	}
+	// ? this can throw SignJwtError
+	const { token: newJwtToken, expires } = await generateTokenForSession({
+		userId: decodedToken.userId,
+		name: decodedToken.name,
+		email: decodedToken.email,
+		provider: decodedToken.provider,
+		image: decodedToken.image
+	})
 
-	//
-	// 3. Return token with the http-only cookie options
-	//
-	return {
-		name: "session-token",
-		value: token,
-		options: {
-			httpOnly: true,
-			secure: true,
-			path: "/",
-			sameSite: "Strict",
-			maxAge: exp // 7 days
-		}
-	}
-}
-
-export const getSessionUser = async (req: Request): Promise<AppJWTPayload | null> => {
-	const cookie = req.headers.get("Cookie")?.match(/session-token=([^;]+)/)
-	if (!cookie) return null
-
-	const [error, decodedToken] = await verifyToken(cookie[1])
-
-	if (error) {
-		return null
-	}
-
-	return decodedToken
+	return [null, { token: newJwtToken, expires }]
 }

@@ -42,7 +42,13 @@ export const findOrCreateUserByProviderAccount = async (
 				)
 			)
 
-		return existingUser
+		return {
+			userId: existingUser.id,
+			name: existingUser.name,
+			image: existingUser.image,
+			email: existingUser.email,
+			provider: "google"
+		}
 	}
 
 	//
@@ -72,6 +78,6 @@ export const findOrCreateUserByProviderAccount = async (
 
 	return {
 		...user,
-		id: newUser.id
+		userId: newUser.id
 	}
 }
