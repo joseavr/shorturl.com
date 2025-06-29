@@ -1,4 +1,5 @@
 import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
+import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 
 export const userTable = sqliteTable("users", {
 	id: text()
@@ -31,3 +32,14 @@ export const accountTable = sqliteTable(
 		})
 	]
 )
+
+/********************
+ *
+ * Zod Validation schemas
+ *
+ ********************/
+export const insertUserSchema = createInsertSchema(userTable)
+export const selectUserSchema = createSelectSchema(userTable)
+
+export const insertAccountSchema = createInsertSchema(accountTable)
+export const selectAccountSchema = createSelectSchema(accountTable)
