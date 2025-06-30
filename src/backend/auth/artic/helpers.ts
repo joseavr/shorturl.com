@@ -47,7 +47,7 @@ export const findOrCreateUserByProviderAccount = async (
 			name: existingUser.name,
 			image: existingUser.image,
 			email: existingUser.email,
-			provider: "google"
+			provider: account.provider
 		}
 	}
 

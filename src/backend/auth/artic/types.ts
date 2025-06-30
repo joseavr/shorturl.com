@@ -28,15 +28,23 @@ export interface OAuthCallbackResult {
 export interface OAuthProvider {
 	getAuthURL: () => string
 	validateCallback: (code: string, state: string) => Promise<OAuthCallbackResult>
-	refreshAcessToken: (session: AppJWTPayload) => Promise<void>
+	refreshAcessToken: (session: UserSession) => Promise<void>
 }
 
-// 'type' shows you the fields on hover
-// while 'interface' does not
-export type AppJWTPayload = JWTPayload & AuthUserWithId
-export type UserSession = AppJWTPayload
+// JWT
+// - iat number (in seconds)
+// - nbf number (in seconds)
+// - exp number (in seconds)
+export type AppJWTPayload = JWTPayload & { user: AuthUserWithId }
 
-export type TokenForSessionResult = {
+export type UserSession = {
+	user: AuthUserWithId
+	exp: JWTPayload["exp"]
+	// iat?: JWTPayload["iat"] // maybe use omit
+	// nbf?: JWTPayload["nbf"] // maybe use omit
+}
+
+export type GenerateTokenForSessionResult = {
 	token: string
 	expires: Date
 }

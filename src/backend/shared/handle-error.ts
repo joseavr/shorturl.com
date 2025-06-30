@@ -1,6 +1,11 @@
 import { DrizzleError } from "drizzle-orm"
 import type { Context } from "hono"
-import { OAuthParametersError, SignJwtError } from "../auth/artic/errors"
+import {
+	OAuthParametersError,
+	RefreshTokenError,
+	SignJwtError,
+	StateOrVerifierError
+} from "../auth/artic/errors"
 
 export function handleError(e: unknown, c: Context) {
 	if (e instanceof DrizzleError) {
@@ -13,6 +18,10 @@ export function handleError(e: unknown, c: Context) {
 
 	if (e instanceof OAuthParametersError) {
 		return c.json({ error: e.name, message: e.message }, 400)
+	}
+
+	if (e instanceof StateOrVerifierError) {
+		return c.json({ error: e.name, message: e.message })
 	}
 
 	console.error({

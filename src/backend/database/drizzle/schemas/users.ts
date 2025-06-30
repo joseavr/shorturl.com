@@ -17,7 +17,7 @@ export const accountTable = sqliteTable(
 		providerAccountId: text().notNull(),
 		refresh_token: text(),
 		access_token: text(),
-		expires_at: integer(),
+		expires_at: integer(), // in miliseconds
 		token_type: text(),
 		scope: text(),
 		id_token: text(),

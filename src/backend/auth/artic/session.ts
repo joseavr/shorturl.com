@@ -81,9 +81,7 @@ export const getSessionUser = async (req: Request): Promise<UserSession | null> 
 	const [_fullMatch, jwt] = cookie
 	const { error, decodedToken } = await verifyToken(jwt)
 
-	if (error) {
-		return null
-	}
+	if (error) return null
 
 	return decodedToken as UserSession
 }

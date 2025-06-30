@@ -24,7 +24,7 @@ authRoute.get("/google/callback", async (c) => {
 	const { searchParams } = new URL(c.req.url)
 
 	// "code" and "state" found in the searchParams sent by Google.
-	// which are required for exchanging.
+	// which are required for exchanging with Google's access_token.
 	const code = searchParams.get("code")
 	const state = searchParams.get("state")
 
@@ -37,7 +37,7 @@ authRoute.get("/google/callback", async (c) => {
 
 		const { token, expires } = await generateTokenForSession(user)
 
-		// Use JWT Session Strategy by storing the JWT in an HTTP-only cookie
+		// Use """JWT Session Strategy""" by storing the JWT in an HTTP-only cookie
 		setSessionTokenCookie(c, token, expires)
 
 		// TODO login success, then redirect to protected route.

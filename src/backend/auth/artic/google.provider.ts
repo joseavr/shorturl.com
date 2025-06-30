@@ -91,9 +91,9 @@ export const GoogleProvider: OAuthProvider = {
 	 * Use function in places where really needed
 	 * i.e do not use in authMiddleware since it
 	 * 		 defeats the purpose of being stateless
-	 * 		 (no need of calling db)
+	 * 		 (i.e no need of calling db)
 	 */
-	async refreshAcessToken(session) {
+	async refreshAcessToken({ user, exp }) {
 		// Find `refreshToken` from `accounts` table
 		// by the userID and provider="google"|"githhub"|...
 		const account = await db
@@ -104,8 +104,8 @@ export const GoogleProvider: OAuthProvider = {
 			.from(accountTable)
 			.where(
 				and(
-					eq(accountTable.userId, session.userId),
-					eq(accountTable.provider, session.provider)
+					eq(accountTable.userId, user.userId),
+					eq(accountTable.provider, user.provider)
 				)
 			)
 			.limit(1)
@@ -115,7 +115,7 @@ export const GoogleProvider: OAuthProvider = {
 			throw new RefreshTokenError("Missing Refresh Token or expiration")
 
 		// if provider token still valid then early return
-		// Note: expiresAt is in ms
+		// Note: expiresAt from accountTable is in miliseconds
 		if (account.expiresAt > Date.now()) return
 
 		// otherwise continue refreshToken process
@@ -134,8 +134,8 @@ export const GoogleProvider: OAuthProvider = {
 			})
 			.where(
 				and(
-					eq(accountTable.userId, session.userId),
-					eq(accountTable.provider, session.provider)
+					eq(accountTable.userId, user.userId),
+					eq(accountTable.provider, user.provider)
 				)
 			)
 	}
