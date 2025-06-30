@@ -5,33 +5,33 @@ import { signToken, verifyToken } from "./jwt"
 import type {
 	AppJWTPayload,
 	AuthUserWithId,
-	TokenForSessionResult,
+	GenerateTokenForSessionResult,
 	UserSession
 } from "./types"
 
 const SESSION_COOKIE_NAME = "session-token"
-const EXPIRES_IN_MS = 60 * 60 * 24 * 7 * 1000 // Expires in 7 days in miliseconds (matches cookie maxAge)
+const EXPIRES_IN_MS = 60 * 60 * 24 * 7 * 1000 // Expires in 7 days in miliseconds (matches cookie's maxAge)
 
 export const generateTokenForSession = async (
 	payload: AuthUserWithId
-): Promise<TokenForSessionResult> => {
+): Promise<GenerateTokenForSessionResult> => {
 	//
 	// 1. Create payload
 	//
 	const now = Math.floor(Date.now()) // now in miliseconds
-	const exp = now + EXPIRES_IN_MS // Expires in 7 days in miliseconds (matches expires)
+	const exp = now + EXPIRES_IN_MS // Expires in 7 days in miliseconds (matches cookie's expires)
 	const jwtPayload: AppJWTPayload = {
-		...payload,
+		user: payload,
 		// following 3 fields are needed for hono/jwt
-		iat: now, // Issued at time
-		nbf: now, // Not valid before time
-		exp: exp / 1000 // expires in 7 days in seconds
+		iat: now / 1000, // (in seconds) Issued at time
+		nbf: now / 1000, // (in seconds) Not valid before time
+		exp: exp / 1000 // (in seconds) expires in 7 days
 	}
 
 	//
 	// 2. Sign payload and generate JWT token
 	//
-	const [error, jwt] = await signToken(jwtPayload)
+	const { error, jwt } = await signToken(jwtPayload)
 
 	if (error) {
 		throw new SignJwtError(
@@ -70,7 +70,7 @@ export const deleteSessionTokenCookie = (c: Context) => {
 	})
 }
 
-export const getSessionToken = (c: Context) => {
+export const getSessionTokenCookie = (c: Context) => {
 	return getCookie(c, SESSION_COOKIE_NAME)
 }
 
@@ -78,15 +78,14 @@ export const getSessionUser = async (req: Request): Promise<UserSession | null> 
 	const cookie = req.headers.get("Cookie")?.match(/session-token=([^;]+)/)
 	if (!cookie) return null
 
-	const [error, decodedToken] = await verifyToken(cookie[1])
+	const [_fullMatch, jwt] = cookie
+	const { error, decodedToken } = await verifyToken(jwt)
 
 	if (error) {
 		return null
 	}
 
-	return decodedToken
+	return decodedToken as UserSession
 }
-
-export const getUserServer = async () => {}
 
 export const useUser = async () => {}
