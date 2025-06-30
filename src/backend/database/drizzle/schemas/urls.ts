@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm"
+import { relations, sql } from "drizzle-orm"
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { userTable } from "./users"
@@ -19,6 +19,13 @@ export const urlTable = sqliteTable("urls", {
 		.default(sql`CURRENT_TIMESTAMP`)
 		.$onUpdate(() => sql`CURRENT_TIMESTAMP`)
 })
+
+export const urlTableRelations = relations(urlTable, ({ one }) => ({
+	owner: one(userTable, {
+		fields: [urlTable.ownerId],
+		references: [userTable.id]
+	})
+}))
 
 export const urlClickTable = sqliteTable("url_clicks", {
 	id: integer("id").primaryKey({ autoIncrement: true }),

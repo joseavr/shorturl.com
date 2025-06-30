@@ -1,5 +1,7 @@
+import { relations } from "drizzle-orm"
 import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
+import { urlTable } from "./urls"
 
 export const userTable = sqliteTable("users", {
 	id: text()
@@ -9,6 +11,10 @@ export const userTable = sqliteTable("users", {
 	email: text().unique().notNull(),
 	image: text().notNull()
 })
+
+export const userTableRelations = relations(userTable, ({ many }) => ({
+	urls: many(urlTable)
+}))
 
 export const accountTable = sqliteTable(
 	"accounts",
