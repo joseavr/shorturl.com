@@ -33,7 +33,7 @@ app.doc("/doc", {
 // 	Thus cannot use endpoint /reference
 //
 app.get(
-	"/api/reference",
+	"/reference",
 	Scalar({
 		url: "/api/doc",
 		theme: "kepler",
