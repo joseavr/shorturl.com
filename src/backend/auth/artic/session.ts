@@ -74,7 +74,7 @@ export const getSessionTokenCookie = (c: Context) => {
 	return getCookie(c, SESSION_COOKIE_NAME)
 }
 
-export const getSessionUser = async (req: Request): Promise<UserSession | null> => {
+export const getUserSession = async (req: Request): Promise<UserSession | null> => {
 	const cookie = req.headers.get("Cookie")?.match(/session-token=([^;]+)/)
 	if (!cookie) return null
 

@@ -4,7 +4,7 @@ import { OAuthParametersError } from "../auth/artic/errors"
 import { findOrCreateUserByProviderAccount } from "../auth/artic/helpers"
 import {
 	generateTokenForSession,
-	getSessionUser,
+	getUserSession,
 	setSessionTokenCookie
 } from "../auth/artic/session"
 import { handleError } from "../shared/handle-error"
@@ -49,7 +49,7 @@ authRoute.get("/google/callback", async (c) => {
 
 // Refresh Token Rotation
 authRoute.get("/api/auth/refresh", async (c) => {
-	const session = await getSessionUser(c.req.raw)
+	const session = await getUserSession(c.req.raw)
 
 	if (!session)
 		return c.json({ error: "UnAuthorized", message: "Token missing or invalid" }, 401)
