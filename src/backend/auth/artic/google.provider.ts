@@ -93,7 +93,7 @@ export const GoogleProvider: OAuthProvider = {
 	 * 		 defeats the purpose of being stateless
 	 * 		 (i.e no need of calling db)
 	 */
-	async refreshAcessToken({ user, exp }) {
+	async refreshAcessToken(user) {
 		// Find `refreshToken` from `accounts` table
 		// by the userID and provider="google"|"githhub"|...
 		const account = await db

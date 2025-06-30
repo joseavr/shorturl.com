@@ -57,7 +57,7 @@ authRoute.get("/api/auth/refresh", async (c) => {
 	// Fetch refresh token from `accounts` table and
 	// call `refreshAccessToken(userId)`
 	// Save new tokens to DB
-	await GoogleProvider.refreshAcessToken(session)
+	await GoogleProvider.refreshAcessToken(session.user)
 
 	return c.json({ message: "Tokens refreshed" }, 200)
 })
