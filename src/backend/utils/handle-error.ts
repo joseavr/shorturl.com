@@ -24,6 +24,10 @@ export function handleError(e: unknown, c: Context) {
 		return c.json({ error: e.name, message: e.message })
 	}
 
+	if (e instanceof RefreshTokenError) {
+		return c.json({ error: e.name, message: e.message })
+	}
+
 	console.error({
 		error: "\n\nUnkown Internal Server Error:\n",
 		stack: (e as Error).stack

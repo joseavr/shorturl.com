@@ -1,15 +1,15 @@
 import { relations } from "drizzle-orm"
 import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
-import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
+import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { urlTable } from "./urls"
 
 export const userTable = sqliteTable("users", {
-	id: text()
+	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
-	name: text().notNull(),
-	email: text().unique().notNull(),
-	image: text().notNull()
+	name: text("name").notNull(),
+	email: text("email").unique().notNull(),
+	image: text("image").notNull()
 })
 
 export const userTableRelations = relations(userTable, ({ many }) => ({
@@ -19,15 +19,15 @@ export const userTableRelations = relations(userTable, ({ many }) => ({
 export const accountTable = sqliteTable(
 	"accounts",
 	{
-		provider: text().notNull(),
-		providerAccountId: text().notNull(),
-		refresh_token: text(),
-		access_token: text(),
-		expires_at: integer(), // in miliseconds
-		token_type: text(),
-		scope: text(),
-		id_token: text(),
-		userId: text()
+		provider: text("provider").notNull(),
+		providerAccountId: text("provider_account_id").notNull(),
+		refresh_token: text("refresh_token"),
+		access_token: text("access_token"),
+		expires_at: integer("expires_at"), // in miliseconds
+		token_type: text("token_type"),
+		scope: text("scope"),
+		id_token: text("id_token"),
+		userId: text("user_id")
 			.notNull()
 			.references(() => userTable.id, { onDelete: "cascade" })
 	},
@@ -47,8 +47,6 @@ export const selectUserSchema = createSelectSchema(userTable)
 export const insertUserSchema = createInsertSchema(userTable).omit({
 	id: true
 })
-export const updateUserSchema = createUpdateSchema(userTable)
 
 export const selectAccountSchema = createSelectSchema(accountTable)
 export const insertAccountSchema = createInsertSchema(accountTable)
-export const updateAccountSchema = createUpdateSchema(accountTable)

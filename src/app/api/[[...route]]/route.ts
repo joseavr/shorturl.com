@@ -2,8 +2,9 @@ import packageJSON from "@@/package.json"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { Scalar } from "@scalar/hono-api-reference"
 import { handle } from "hono/vercel"
-import { authRoute } from "@/backend/routes/auth.route"
-import { urlsRoute } from "@/backend/routes/urls.route"
+import { authRoute } from "@/backend/routes/auth/auth.route"
+import { urlsRoute } from "@/backend/routes/urls/urls.route"
+import type { AppBindings } from "@/backend/types"
 
 export const runtime = "edge"
 
@@ -12,7 +13,7 @@ export const runtime = "edge"
 // 		const app = new Hono().basePath("/api")
 // We will use OpenAPIHono() to document our endpoints
 //
-const app = new OpenAPIHono().basePath("/api")
+const app = new OpenAPIHono<AppBindings>().basePath("/api")
 
 //
 // Set OpenAPI at url: /doc

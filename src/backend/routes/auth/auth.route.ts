@@ -1,13 +1,13 @@
 import { Hono } from "hono"
+import { OAuthParametersError } from "@/backend/auth/artic/errors"
 import { GoogleProvider } from "@/backend/auth/artic/google.provider"
-import { OAuthParametersError } from "../auth/artic/errors"
-import { findOrCreateUserByProviderAccount } from "../auth/artic/helpers"
+import { findOrCreateUserByProviderAccount } from "@/backend/auth/artic/helpers"
 import {
 	generateTokenForSession,
 	getUserSession,
 	setSessionTokenCookie
-} from "../auth/artic/session"
-import { handleError } from "../shared/handle-error"
+} from "@/backend/auth/artic/session"
+import { handleError } from "@/backend/utils/handle-error"
 
 const authRoute = new Hono()
 
