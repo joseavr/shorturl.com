@@ -14,8 +14,20 @@ type Result<D, E = Error> = Success<D> | Failure<E>
 export async function tryCatch<D, E = Error>(promise: Promise<D>): Promise<Result<D, E>> {
 	try {
 		const data = await promise
-		return { data: data as D, error: null }
+		return { data: data, error: null }
 	} catch (error) {
 		return { data: null, error: error as E }
+	}
+}
+
+// Golang-like handle errors
+export async function safeAwait<T, E = Error>(
+	promise: Promise<T>
+): Promise<[null, T] | [E, null]> {
+	try {
+		const result = await promise
+		return [null, result]
+	} catch (error) {
+		return [error as E, null]
 	}
 }

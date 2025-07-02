@@ -1,6 +1,6 @@
 import { relations, sql } from "drizzle-orm"
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
-import { createInsertSchema, createSelectSchema } from "drizzle-zod"
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
 import { userTable } from "./users"
 
 export const urlTable = sqliteTable("urls", {
@@ -9,7 +9,7 @@ export const urlTable = sqliteTable("urls", {
 		.$defaultFn(() => crypto.randomUUID()), // UUID or hash
 	originalUrl: text("original_url").notNull(),
 	shortCode: text("short_code").unique().notNull(),
-	ownerId: text("owner_id").references(() => userTable.id), // Nullable
+	ownerId: text("owner_id").references(() => userTable.id),
 	visibility: text("visibility", { enum: ["public", "private"] })
 		.notNull()
 		.default("private"),
@@ -43,10 +43,21 @@ export const urlClickTable = sqliteTable("url_clicks", {
  *
  ********************/
 export const selectUrlSchema = createSelectSchema(urlTable)
-export const insertUrlSchema = createInsertSchema(urlTable).omit({
-	id: true,
+export const insertUrlSchema = createInsertSchema(urlTable)
+	.omit({
+		id: true,
+		createdAt: true,
+		updatedAt: true,
+		ownerId: true
+	})
+	.required({
+		originalUrl: true,
+		shortCode: true
+	})
+export const updateUrlSchema = createUpdateSchema(urlTable).omit({
 	createdAt: true,
-	updatedAt: true
+	updatedAt: true,
+	ownerId: true
 })
 
 export const selectUrlClickSchema = createSelectSchema(urlClickTable)
