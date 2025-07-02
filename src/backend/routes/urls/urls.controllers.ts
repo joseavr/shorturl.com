@@ -1,7 +1,6 @@
 import { and, eq } from "drizzle-orm"
 import { getUserSession } from "@/backend/auth/artic/session"
 import { db } from "@/backend/database"
-import { urls } from "@/backend/database/drizzle/migrations/schema"
 import { urlTable } from "@/backend/database/drizzle/schemas"
 import type { AppRouteHandler } from "@/backend/types"
 import {
