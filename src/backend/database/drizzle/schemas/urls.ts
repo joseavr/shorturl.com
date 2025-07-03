@@ -42,6 +42,9 @@ export const urlClickTable = sqliteTable("url_clicks", {
  * Zod Validation schemas
  *
  ********************/
+export const selectPublicUrlSchema = createSelectSchema(urlTable).omit({
+	ownerId: true
+})
 export const selectUrlSchema = createSelectSchema(urlTable)
 export const insertUrlSchema = createInsertSchema(urlTable)
 	.omit({

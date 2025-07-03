@@ -1,6 +1,7 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import {
 	insertUrlSchema,
+	selectPublicUrlSchema,
 	selectUrlSchema,
 	updateUrlSchema
 } from "@/backend/database/drizzle/schemas"
@@ -20,9 +21,7 @@ export const getAllPublic = createRoute({
 			description: "Get all public URLs",
 			content: {
 				"application/json": {
-					schema: z.object({
-						data: z.array(selectUrlSchema)
-					})
+					schema: onSuccessResponseSchema(z.array(selectPublicUrlSchema))
 				}
 			}
 		}
