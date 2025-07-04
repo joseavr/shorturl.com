@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm"
+import { nanoid } from "nanoid"
 import { getUserSession } from "@/backend/auth/artic/session"
 import { db } from "@/backend/database"
 import { urlTable } from "@/backend/database/drizzle/schemas"
@@ -47,7 +48,7 @@ export const getAllPrivate: AppRouteHandler<getAllPrivateRoute> = async (c) => {
 export const postPrivate: AppRouteHandler<postPrivateRoute> = async (c) => {
 	const session = await getUserSession(c.req.raw)
 
-	// what if user in db no exist...
+	// TODO what if user in db no exist...
 
 	if (!session || !session?.user) {
 		return c.json(
@@ -58,7 +59,13 @@ export const postPrivate: AppRouteHandler<postPrivateRoute> = async (c) => {
 
 	const url = c.req.valid("json")
 
-	const [newUrl] = await db.insert(urlTable).values(url).returning()
+	// create shortUrl
+	const shortUrl = nanoid(8)
+
+	const [newUrl] = await db
+		.insert(urlTable)
+		.values({ ...url, shortUrl, ownerId: session.user.userId })
+		.returning()
 
 	return c.json(onSuccessResponse(newUrl), 200)
 }
