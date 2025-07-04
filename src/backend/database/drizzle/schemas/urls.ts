@@ -8,7 +8,7 @@ export const urlTable = sqliteTable("urls", {
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()), // UUID or hash
 	originalUrl: text("original_url").notNull(),
-	shortCode: text("short_code").unique().notNull(),
+	shortUrl: text("short_code").unique().notNull(),
 	ownerId: text("owner_id").references(() => userTable.id),
 	visibility: text("visibility", { enum: ["public", "private"] })
 		.notNull()
@@ -51,13 +51,15 @@ export const insertUrlSchema = createInsertSchema(urlTable)
 		id: true,
 		createdAt: true,
 		updatedAt: true,
-		ownerId: true
+		ownerId: true,
+		shortUrl: true
 	})
 	.required({
 		originalUrl: true,
-		shortCode: true
+		visibility: true
 	})
 export const updateUrlSchema = createUpdateSchema(urlTable).omit({
+	id: true,
 	createdAt: true,
 	updatedAt: true,
 	ownerId: true
