@@ -38,7 +38,7 @@ app.get(
 	Scalar({
 		url: "/api/doc",
 		theme: "kepler",
-		layout: "classic",
+		layout: "modern",
 		defaultHttpClient: {
 			targetKey: "js",
 			clientKey: "fetch"
@@ -50,7 +50,6 @@ app.get(
 // RESOURCES
 // 1. /api/user
 // 2. /api/url
-// 3. /:shortURL-ID
 //
 const routes = app
 	.route("/auth", authRoute)
