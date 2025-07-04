@@ -27,7 +27,7 @@ export const getAllPublic: AppRouteHandler<getAllPublicRoute> = async (c) => {
 export const getAllPrivate: AppRouteHandler<getAllPrivateRoute> = async (c) => {
 	const session = await getUserSession(c.req.raw)
 
-	if (!session || session?.user) {
+	if (!session || !session.user) {
 		return c.json(
 			onFailureResponse("UNAUTHORIZED", "Not authorized to make this request."),
 			HttpsCode.UNAUTHORIZED
