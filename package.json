@@ -10,17 +10,20 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome lint ./src",
+    
     "pages:deploy": "wrangler pages deploy .vercel/output/static  --project-name cf-next-hono",
     "api:deploy": "wrangler deploy --minify --name cf-next-hono src/app/api/[[...route]]/route.ts",
     "cf:build": "bun run lint && bunx @cloudflare/next-on-pages",
     "cf:preview": "bun run cf:build && bunx wrangler pages dev .vercel/output/static",
     "cf:deploy": "bun run cf:build && bun run api:deploy && bun run pages:deploy",
+
+    "db:studio": "drizzle-kit studio",
+    
     "db:dump": "turso db shell ${DB_NAME:-main} .dump > dump.sql && cat dump.sql | sqlite3 local.db && turso dev --db-file local.db && drizzle-kit push",
     "db:local": "turso dev --db-file local.db",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@hono/zod-openapi": "0.19.9",
