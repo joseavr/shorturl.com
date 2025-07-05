@@ -1,9 +1,10 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import {
-	insertUrlSchema,
-	selectPublicUrlSchema,
-	selectUrlSchema,
-	updateUrlSchema
+	InsertUrlSchema,
+	SelectPublicUrlSchema,
+	SelectUrlSchema,
+	UpdateUrlSchema,
+	UrlIDParamSchema
 } from "@/backend/database/drizzle/schemas"
 import {
 	onFailureResponseSchema,
@@ -21,7 +22,7 @@ export const getAllPublic = createRoute({
 			description: "Get all public URLs",
 			content: {
 				"application/json": {
-					schema: onSuccessResponseSchema(z.array(selectPublicUrlSchema))
+					schema: onSuccessResponseSchema(z.array(SelectPublicUrlSchema))
 				}
 			}
 		}
@@ -37,7 +38,7 @@ export const getAllPrivate = createRoute({
 			description: "Get user URLs",
 			content: {
 				"application/json": {
-					schema: onSuccessResponseSchema(z.array(selectUrlSchema))
+					schema: onSuccessResponseSchema(z.array(SelectUrlSchema))
 				}
 			}
 		},
@@ -63,7 +64,7 @@ export const postPrivate = createRoute({
 			required: true,
 			content: {
 				"application/json": {
-					schema: insertUrlSchema
+					schema: InsertUrlSchema
 				}
 			}
 		}
@@ -73,7 +74,7 @@ export const postPrivate = createRoute({
 			description: "The created URL",
 			content: {
 				"application/json": {
-					schema: onSuccessResponseSchema(selectUrlSchema)
+					schema: onSuccessResponseSchema(SelectUrlSchema)
 				}
 			}
 		},
@@ -98,17 +99,18 @@ export const patchPrivate = createRoute({
 			required: true,
 			content: {
 				"application/json": {
-					schema: updateUrlSchema
+					schema: UpdateUrlSchema
 				}
 			}
-		}
+		},
+		params: UrlIDParamSchema
 	},
 	responses: {
 		200: {
 			description: "The URL updated",
 			content: {
 				"application/json": {
-					schema: onSuccessResponseSchema(selectUrlSchema)
+					schema: onSuccessResponseSchema(SelectUrlSchema)
 				}
 			}
 		},
@@ -137,6 +139,9 @@ export const deletePrivate = createRoute({
 	method: "delete",
 	path: "/:urlId",
 	tags: TAGS,
+	request: {
+		params: UrlIDParamSchema
+	},
 	responses: {
 		200: {
 			description: "The URL deleted",
