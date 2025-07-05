@@ -7,10 +7,10 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 	// 1. Get and Verify the session JWT
 	//
 	const jwt = getSessionTokenCookie(c)
-	if (!jwt) return c.json({ error: "Unauthorized: Token no valid" }, 401) // TODO redirect to login
+	if (!jwt) return c.json({ error: "UNAUTHORIZED: Token no valid" }, 401) // TODO redirect to login
 
 	const { error, decodedToken } = await verifyToken(jwt)
-	if (error) return c.json({ error: "Unauthorized: Token no valid" }, 401) // TODO redirect to login
+	if (error) return c.json({ error: "UNAUTHORIZED: Token no valid" }, 401) // TODO redirect to login
 
 	//
 	// At this point, the JWT token has been verified.
@@ -32,7 +32,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 	// 3. Re-issue JWT if about to expire (< 5 min left)
 	//
 	const { error: validationError, data } = await revalidateSessionToken(jwt)
-	if (validationError) return c.json({ error: "Unauthorized: reIssueTokenError" }, 401) // TODO redirect to login
+	if (validationError) return c.json({ error: "UNAUTHORIZED: reIssueTokenError" }, 401) // TODO redirect to login
 
 	// no data -> should not refreshToken
 	if (data === null) return next()
