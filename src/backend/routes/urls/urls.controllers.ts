@@ -73,7 +73,7 @@ export const postPrivate: AppRouteHandler<postPrivateRoute> = async (c) => {
 export const patchPrivate: AppRouteHandler<patchPrivateRoute> = async (c) => {
 	const session = await getUserSession(c.req.raw)
 
-	if (!session || session?.user) {
+	if (!session || !session?.user) {
 		return c.json(
 			onFailureResponse("UNAUTHORIZED", "Not authorized to make this request."),
 			HttpsCode.UNAUTHORIZED
@@ -88,7 +88,7 @@ export const patchPrivate: AppRouteHandler<patchPrivateRoute> = async (c) => {
 
 	if (!url)
 		return c.json(
-			onFailureResponse("NOT_FOUND", "Could not find the URL in our servers."),
+			onFailureResponse("NOT_FOUND", "Could not find the URL in our server."),
 			HttpsCode.NOT_FOUND
 		)
 
@@ -101,9 +101,27 @@ export const patchPrivate: AppRouteHandler<patchPrivateRoute> = async (c) => {
 
 	// edit the url
 	const urlToUpdate = c.req.valid("json")
+
+	// if url is same, only update visiblity
+	if (urlToUpdate?.originalUrl === url.originalUrl) {
+		const [urlUpdated] = await db
+			.update(urlTable)
+			.set({ visibility: urlToUpdate.visibility })
+			.where(eq(urlTable.id, url.id))
+			.returning()
+		return c.json(onSuccessResponse(urlUpdated), 200)
+	}
+
+	// otherwise update url + shortUrl
+	const newShortUrl = nanoid(8)
+
 	const [urlUpdated] = await db
 		.update(urlTable)
-		.set(urlToUpdate)
+		.set({
+			originalUrl: urlToUpdate.originalUrl,
+			shortUrl: newShortUrl,
+			visibility: urlToUpdate.visibility
+		})
 		.where(eq(urlTable.id, url.id))
 		.returning()
 
