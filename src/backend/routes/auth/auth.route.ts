@@ -1,7 +1,11 @@
 import { Hono } from "hono"
+import { deleteCookie } from "hono/cookie"
 import { OAuthParametersError } from "@/backend/auth/artic/errors"
 import { GoogleProvider } from "@/backend/auth/artic/google.provider"
-import { findOrCreateUserByProviderAccount } from "@/backend/auth/artic/helpers"
+import {
+	clearUserAcessTokenDB,
+	findOrCreateUserByProviderAccount
+} from "@/backend/auth/artic/helpers"
 import {
 	generateTokenForSession,
 	getUserSession,
@@ -48,11 +52,11 @@ authRoute.get("/google/callback", async (c) => {
 })
 
 // Refresh Token Rotation
-authRoute.get("/api/auth/refresh", async (c) => {
+authRoute.get("/refresh_token", async (c) => {
 	const session = await getUserSession(c.req.raw)
 
 	if (!session)
-		return c.json({ error: "UnAuthorized", message: "Token missing or invalid" }, 401)
+		return c.json({ error: "UNAUTHORIZED", message: "Token missing or invalid" }, 401)
 
 	// Fetch refresh token from `accounts` table and
 	// call `refreshAccessToken(userId)`
@@ -60,6 +64,24 @@ authRoute.get("/api/auth/refresh", async (c) => {
 	await GoogleProvider.refreshAcessToken(session.user)
 
 	return c.json({ message: "Tokens refreshed" }, 200)
+})
+
+authRoute.get("/logout", async (c) => {
+	const session = await getUserSession(c.req.raw)
+
+	if (!session)
+		return c.json({ error: "UNAUTHORIZED", message: "Token missing or invalid" })
+
+	// Invalidate session by clearing the session-token cookie
+	deleteCookie(c, "session_token")
+
+	// Invalidate google access_token
+	GoogleProvider.invalidateAcessToken(session.user)
+
+	// Clear user access_token in DB
+	clearUserAcessTokenDB(session.user)
+
+	return c.json({ message: "Logout successful" }, 200)
 })
 
 export { authRoute }

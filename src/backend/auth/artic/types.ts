@@ -29,6 +29,7 @@ export interface OAuthProvider {
 	getAuthURL: () => string
 	validateCallback: (code: string, state: string) => Promise<OAuthCallbackResult>
 	refreshAcessToken: (user: UserSession["user"]) => Promise<void>
+	invalidateAcessToken: (user: UserSession["user"]) => Promise<void>
 }
 
 // JWT

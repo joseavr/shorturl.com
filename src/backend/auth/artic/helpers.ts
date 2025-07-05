@@ -9,7 +9,6 @@ export const findUserByEmail = async (email: string) => {
 	})
 }
 
-// TODO Fix types with zod
 export const findOrCreateUserByProviderAccount = async (
 	user: AuthUser,
 	account: AuthAccount
@@ -80,4 +79,17 @@ export const findOrCreateUserByProviderAccount = async (
 		...user,
 		userId: newUser.id
 	}
+}
+
+export const clearUserAcessTokenDB = async (user: AuthUserWithId) => {
+	await db
+		.update(accountTable)
+		.set({
+			access_token: null,
+			refresh_token: null,
+			expires_at: null
+		})
+		.where(
+			and(eq(accountTable.userId, user.userId), eq(accountTable.provider, user.provider))
+		)
 }

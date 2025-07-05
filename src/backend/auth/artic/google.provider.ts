@@ -138,5 +138,31 @@ export const GoogleProvider: OAuthProvider = {
 					eq(accountTable.provider, user.provider)
 				)
 			)
+	},
+
+	async invalidateAcessToken(user) {
+		// Find the account to get the access token
+		const account = await db
+			.select({
+				accessToken: accountTable.access_token
+			})
+			.from(accountTable)
+			.where(
+				and(
+					eq(accountTable.userId, user.userId),
+					eq(accountTable.provider, user.provider)
+				)
+			)
+			.limit(1)
+			.then((arr) => arr[0])
+
+		if (!account.accessToken) {
+			throw new Error("No access token found to invalidate")
+		}
+
+		// Revoke the access token in Google
+		await google.revokeToken(account.accessToken)
+
+		// Also clear the token from the database
 	}
 }
