@@ -1,3 +1,4 @@
+import { z } from "@hono/zod-openapi"
 import { relations, sql } from "drizzle-orm"
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
@@ -42,11 +43,11 @@ export const urlClickTable = sqliteTable("url_clicks", {
  * Zod Validation schemas
  *
  ********************/
-export const selectPublicUrlSchema = createSelectSchema(urlTable).omit({
+export const SelectPublicUrlSchema = createSelectSchema(urlTable).omit({
 	ownerId: true
 })
-export const selectUrlSchema = createSelectSchema(urlTable)
-export const insertUrlSchema = createInsertSchema(urlTable)
+export const SelectUrlSchema = createSelectSchema(urlTable)
+export const InsertUrlSchema = createInsertSchema(urlTable)
 	.omit({
 		id: true,
 		createdAt: true,
@@ -58,12 +59,25 @@ export const insertUrlSchema = createInsertSchema(urlTable)
 		originalUrl: true,
 		visibility: true
 	})
-export const updateUrlSchema = createUpdateSchema(urlTable).omit({
+export const UpdateUrlSchema = createUpdateSchema(urlTable).omit({
 	id: true,
 	createdAt: true,
 	updatedAt: true,
-	ownerId: true
+	ownerId: true,
+	shortUrl: true
 })
 
-export const selectUrlClickSchema = createSelectSchema(urlClickTable)
-export const insertUrlClickSchema = createInsertSchema(urlClickTable)
+export const SelectUrlClickSchema = createSelectSchema(urlClickTable)
+export const InsertUrlClickSchema = createInsertSchema(urlClickTable)
+
+export const UrlIDParamSchema = z.object({
+	urlId: z.string().openapi({
+		param: {
+			name: "urlId",
+			in: "path",
+			required: true
+		},
+		required: ["urlId"],
+		example: "bf616909-74c2-..."
+	})
+})
