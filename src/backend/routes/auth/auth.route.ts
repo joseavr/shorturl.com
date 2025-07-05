@@ -1,5 +1,4 @@
 import { Hono } from "hono"
-import { deleteCookie } from "hono/cookie"
 import { OAuthParametersError } from "@/backend/auth/artic/errors"
 import { GoogleProvider } from "@/backend/auth/artic/google.provider"
 import {
@@ -7,6 +6,7 @@ import {
 	findOrCreateUserByProviderAccount
 } from "@/backend/auth/artic/helpers"
 import {
+	deleteSessionTokenCookie,
 	generateTokenForSession,
 	getUserSession,
 	setSessionTokenCookie
@@ -73,7 +73,7 @@ authRoute.get("/logout", async (c) => {
 		return c.json({ error: "UNAUTHORIZED", message: "Token missing or invalid" })
 
 	// Invalidate session by clearing the session-token cookie
-	deleteCookie(c, "session_token")
+	deleteSessionTokenCookie(c)
 
 	// Invalidate google access_token
 	GoogleProvider.invalidateAcessToken(session.user)
