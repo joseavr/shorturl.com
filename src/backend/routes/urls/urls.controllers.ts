@@ -14,7 +14,8 @@ import type {
 	getAllPrivateRoute,
 	getAllPublicRoute,
 	patchPrivateRoute,
-	postPrivateRoute
+	postPrivateRoute,
+	postPublicRoute
 } from "./urls.docs"
 
 export const getAllPublic: AppRouteHandler<getAllPublicRoute> = async (c) => {
@@ -68,6 +69,22 @@ export const postPrivate: AppRouteHandler<postPrivateRoute> = async (c) => {
 		.returning()
 
 	return c.json(onSuccessResponse(newUrl), 200)
+}
+
+export const postPublic: AppRouteHandler<postPublicRoute> = async (c) => {
+	{
+		// TODO add rate limiting
+
+		const url = c.req.valid("json")
+		const shortUrl = nanoid(8)
+
+		const [newUrl] = await db
+			.insert(urlTable)
+			.values({ ...url, shortUrl })
+			.returning()
+
+		return c.json(onSuccessResponse(newUrl), 200)
+	}
 }
 
 export const patchPrivate: AppRouteHandler<patchPrivateRoute> = async (c) => {

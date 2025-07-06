@@ -59,6 +59,19 @@ export const InsertUrlSchema = createInsertSchema(urlTable)
 		originalUrl: true,
 		visibility: true
 	})
+export const InsertPublicUrlSchema = createInsertSchema(urlTable)
+	.omit({
+		id: true,
+		createdAt: true,
+		updatedAt: true,
+		ownerId: true,
+		shortUrl: true,
+		visibility: true
+	})
+	.required({
+		originalUrl: true
+	})
+
 export const UpdateUrlSchema = createUpdateSchema(urlTable).omit({
 	id: true,
 	createdAt: true,

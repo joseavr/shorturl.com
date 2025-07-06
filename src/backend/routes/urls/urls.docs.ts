@@ -1,5 +1,6 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import {
+	InsertPublicUrlSchema,
 	InsertUrlSchema,
 	SelectPublicUrlSchema,
 	SelectUrlSchema,
@@ -75,6 +76,41 @@ export const postPrivate = createRoute({
 			content: {
 				"application/json": {
 					schema: onSuccessResponseSchema(SelectUrlSchema)
+				}
+			}
+		},
+		401: {
+			description: "Unauthorized to make this request",
+			content: {
+				"application/json": {
+					schema: onFailureResponseSchema()
+				}
+			}
+		}
+	}
+})
+
+export const postPublic = createRoute({
+	method: "post",
+	path: "/public",
+	tags: TAGS,
+	request: {
+		body: {
+			description: "The public URL to create",
+			required: true,
+			content: {
+				"application/json": {
+					schema: InsertPublicUrlSchema
+				}
+			}
+		}
+	},
+	responses: {
+		200: {
+			description: "The created URL",
+			content: {
+				"application/json": {
+					schema: onSuccessResponseSchema(SelectPublicUrlSchema)
 				}
 			}
 		},
@@ -175,5 +211,6 @@ export const deletePrivate = createRoute({
 export type getAllPublicRoute = typeof getAllPublic
 export type getAllPrivateRoute = typeof getAllPrivate
 export type postPrivateRoute = typeof postPrivate
+export type postPublicRoute = typeof postPublic
 export type patchPrivateRoute = typeof patchPrivate
 export type deletePrivateRoute = typeof deletePrivate
