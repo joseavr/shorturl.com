@@ -1,14 +1,16 @@
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
+import { getOriginalUrl } from "./_services/get-origin-url"
 
-export default async function Redirect({
+export default async function RedirectPage({
 	params
 }: {
 	params: Promise<{ shorturl: string }>
 }) {
 	// find the url by hashurl passed in the params
 	const { shorturl } = await params
+	const originalUrl = await getOriginalUrl(shorturl)
 
-	// if found, then redirect,
-	// otherwise redirect to error page
-	redirect("https://www.google.com")
+	if (!originalUrl) notFound()
+
+	redirect(originalUrl)
 }

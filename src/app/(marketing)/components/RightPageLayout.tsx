@@ -1,16 +1,10 @@
-import { FeatherSearch } from "@subframe/core"
-// import { client } from "@/backend/lib/rpc"
-import { TextField, TextFieldInput } from "@/ui"
 import { ScrollArea, ScrollBar } from "@/ui/components/ScrollArea"
+import { getPlublicUrls } from "../_services/get-public-urls"
+import { SearchUrlTextField } from "./SearchUrlTextField"
 import UrlCard from "./UrlCard"
 
-const HOST_NAME = "http://localhost:3000"
-
 export async function RightPageLayout() {
-	const response = await fetch(`${HOST_NAME}/api/urls/public`)
-	const json = await response.json()
-
-	const urls = json.success ? json.data : ([] as Array<any>)
+	const urls = await getPlublicUrls()
 
 	return (
 		<div className="flex h-screen shrink-0 grow basis-0 flex-col items-start self-stretch overflow-hidden border-neutral-border border-l border-solid">
@@ -18,23 +12,13 @@ export async function RightPageLayout() {
 				<span className="shrink-0 grow basis-0 font-heading-3 text-default-font text-heading-3">
 					Recently Shortened
 				</span>
-				<TextField
-					className="h-auto shrink-0 grow basis-0"
-					variant="filled"
-					label=""
-					helpText=""
-					icon={<FeatherSearch />}
-				>
-					<TextFieldInput
-						placeholder="Search URLs"
-						// onChange={(event: React.ChangeEvent<HTMLInputElement>) => {}}
-					/>
-				</TextField>
+
+				<SearchUrlTextField />
 			</div>
 			<ScrollArea className="h-full w-full overflow-scroll">
-				{urls.map((url) => {
-					return <UrlCard key={url.id} {...url} />
-				})}
+				{urls.map((url) => (
+					<UrlCard key={url.id} {...url} />
+				))}
 
 				<ScrollBar orientation="vertical" />
 			</ScrollArea>

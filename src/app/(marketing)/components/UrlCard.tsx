@@ -1,8 +1,10 @@
 import type { z } from "@hono/zod-openapi"
-import { FeatherCopy, FeatherEye } from "@subframe/core"
+import { FeatherEye } from "@subframe/core"
+import Link from "next/link"
 import relativeDate from "tiny-relative-date"
 import type { SelectPublicUrlSchema } from "@/backend/database/drizzle/schemas"
-import { IconButton, LinkButton } from "@/ui"
+import { LinkButton } from "@/ui"
+import { CopyButton } from "./CopyButton"
 
 type UrlCardProps = z.infer<typeof SelectPublicUrlSchema>
 
@@ -19,15 +21,12 @@ export default function UrlCard(props: UrlCardProps) {
 						<span className="font-body-bold text-body-bold text-default-font">
 							{`${HOST_NAME}/${props.shortUrl}`}
 						</span>
-						<IconButton
-							icon={<FeatherCopy />}
-							// onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-						/>
+						<CopyButton shortUrl={props.shortUrl} />
 					</div>
-					<LinkButton
-					// onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-					>
-						{props.originalUrl}
+					<LinkButton variant="neutral">
+						<Link href={props.originalUrl} target="_blank">
+							{props.originalUrl}
+						</Link>
 					</LinkButton>
 				</div>
 				<div className="flex items-center gap-4">

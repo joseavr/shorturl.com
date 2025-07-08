@@ -52,7 +52,7 @@ app.get(
 // 2. /api/url
 //
 const routes = app
-	// .route("/auth", authRoute)
+	.route("/auth", authRoute)
 	// .route("/users", usersRoute)
 	.route("/urls", urlsRoute)
 
