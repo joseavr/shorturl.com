@@ -47,7 +47,9 @@ export const SelectPublicUrlSchema = createSelectSchema(urlTable).omit({
 	ownerId: true
 })
 export const SelectUrlSchema = createSelectSchema(urlTable)
-export const InsertUrlSchema = createInsertSchema(urlTable)
+export const InsertUrlSchema = createInsertSchema(urlTable, {
+	originalUrl: z.string().url("Must be a valid URL")
+})
 	.omit({
 		id: true,
 		createdAt: true,

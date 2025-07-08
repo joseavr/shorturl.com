@@ -28,7 +28,7 @@ app.doc("/doc", {
 
 //
 // Scalar is like swagger.js but more beautiful
-// A dashboard displays all documented endpoints
+// A dashboard displaying all documented endpoints
 // Note:
 // 	In next.js, we can only use endpoints starts with /api/...
 // 	Thus cannot use endpoint /reference
@@ -52,13 +52,13 @@ app.get(
 // 2. /api/url
 //
 const routes = app
-	.route("/auth", authRoute)
+	// .route("/auth", authRoute)
 	// .route("/users", usersRoute)
 	.route("/urls", urlsRoute)
 
 //
-// Hono will handle all HTTP methods
-// instead of Next.js
+// Let Hono handle all HTTP methods
+// at /api instead of Next.js
 //
 export const OPTIONS = handle(app)
 export const GET = handle(app)
