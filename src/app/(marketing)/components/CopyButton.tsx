@@ -1,21 +1,28 @@
 "use client"
 
-import { FeatherCopy } from "@subframe/core"
-import type React from "react"
+import { FeatherCheckCheck, FeatherCopy } from "@subframe/core"
+import { useState } from "react"
 import { IconButton } from "@/ui"
 
-const HOST_NAME = "http://localhost:3000"
-
 export function CopyButton({ shortUrl }: { shortUrl: string }) {
-	return (
-		<IconButton
-			icon={<FeatherCopy />}
-			onClick={async (event: React.MouseEvent<HTMLButtonElement>) => {
-				event.preventDefault()
-				if (shortUrl) {
-					await navigator.clipboard.writeText(`${HOST_NAME}/${shortUrl}`)
-				}
-			}}
-		/>
-	)
+	const { isCopied, handleCopy } = useClipboard(shortUrl)
+
+	const Icon = isCopied ? FeatherCheckCheck : FeatherCopy
+
+	return <IconButton icon={<Icon />} onClick={handleCopy} />
+}
+
+function useClipboard(text: string) {
+	const [isCopied, setIsCopied] = useState(false)
+
+	const handleCopy = async () => {
+		setIsCopied(true)
+		await navigator.clipboard.writeText(text)
+
+		setTimeout(() => {
+			setIsCopied(false)
+		}, 2500)
+	}
+
+	return { isCopied, handleCopy }
 }
