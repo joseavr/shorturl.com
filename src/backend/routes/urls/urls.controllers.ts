@@ -80,7 +80,7 @@ export const postPublic: AppRouteHandler<postPublicRoute> = async (c) => {
 
 		const [newUrl] = await db
 			.insert(urlTable)
-			.values({ ...url, shortUrl })
+			.values({ originalUrl: url.originalUrl, shortUrl, visibility: "public" })
 			.returning()
 
 		return c.json(onSuccessResponse(newUrl), 200)
