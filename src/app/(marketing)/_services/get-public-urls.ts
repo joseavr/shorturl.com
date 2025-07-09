@@ -3,8 +3,8 @@ import { SelectPublicUrlSchema } from "@/backend/database/drizzle/schemas"
 import { onSuccessResponseSchema } from "@/backend/utils/http-response-factory"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL
-const result = onSuccessResponseSchema(z.array(SelectPublicUrlSchema))
-type UrlsResponse = z.infer<typeof result>
+const schema = onSuccessResponseSchema(z.array(SelectPublicUrlSchema))
+type UrlsResponse = z.infer<typeof schema>
 
 export async function getPlublicUrls() {
 	const response = await fetch(`${APP_URL}/api/urls/public`)
