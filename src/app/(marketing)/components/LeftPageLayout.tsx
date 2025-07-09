@@ -8,12 +8,12 @@ export function LeftPageLayout() {
 		<div className="flex shrink-0 grow basis-0 flex-col items-center justify-center gap-6 self-stretch px-12 py-12">
 			<div className="flex w-full max-w-[448px] flex-col items-start justify-center gap-8">
 				<div className="flex w-full flex-col items-start gap-4">
-					<div className="flex items-center gap-1 rounded-md border border-neutral-100 border-solid bg-neutral-100 py-1 pr-2 pl-3">
-						<span className="whitespace-nowrap font-['Inter'] font-[500] text-[14px] text-default-font leading-[20px]">
+					{/* <div className="flex items-center gap-1 rounded-md border border-neutral-100 border-solid bg-neutral-100 py-1 pr-2 pl-3">
+						<span className="whitespace-nowrap font-['Inter'] text-caption text-default-font">
 							Introducing QR Codes
 						</span>
-						<FeatherChevronRight className="font-['Inter'] font-[400] text-[14px] text-default-font leading-[20px]" />
-					</div>
+						<FeatherChevronRight className="font-['Inter'] font-[400] text-[10px] text-default-font" />
+					</div> */}
 					<span className="w-full font-heading-1 text-default-font text-heading-1">
 						Shorten your links
 					</span>
