@@ -44,7 +44,8 @@ export const urlClickTable = sqliteTable("url_clicks", {
  *
  ********************/
 export const SelectPublicUrlSchema = createSelectSchema(urlTable).omit({
-	ownerId: true
+	ownerId: true,
+	visibility: true
 })
 export const SelectUrlSchema = createSelectSchema(urlTable)
 export const InsertUrlSchema = createInsertSchema(urlTable, {
