@@ -55,22 +55,9 @@ export const SelectPublicUrlSchema = createSelectSchema(urlTable).omit({
 	ownerId: true,
 	visibility: true
 })
-export const SelectUrlSchema = createSelectSchema(urlTable)
-export const InsertUrlSchema = createInsertSchema(urlTable, {
-	originalUrl: z.string().url("Must be a valid URL")
+export const InsertPublicUrlSchema = createInsertSchema(urlTable, {
+	originalUrl: z.string().url("Invalid url.")
 })
-	.omit({
-		id: true,
-		createdAt: true,
-		updatedAt: true,
-		ownerId: true,
-		shortUrl: true
-	})
-	.required({
-		originalUrl: true,
-		visibility: true
-	})
-export const InsertPublicUrlSchema = createInsertSchema(urlTable)
 	.omit({
 		id: true,
 		createdAt: true,
@@ -83,6 +70,21 @@ export const InsertPublicUrlSchema = createInsertSchema(urlTable)
 		originalUrl: true
 	})
 
+export const SelectUrlSchema = createSelectSchema(urlTable)
+export const InsertUrlSchema = createInsertSchema(urlTable, {
+	originalUrl: z.string().url("Invalid url.")
+})
+	.omit({
+		id: true,
+		createdAt: true,
+		updatedAt: true,
+		ownerId: true,
+		shortUrl: true
+	})
+	.required({
+		originalUrl: true,
+		visibility: true
+	})
 export const UpdateUrlSchema = createUpdateSchema(urlTable).omit({
 	id: true,
 	createdAt: true,
