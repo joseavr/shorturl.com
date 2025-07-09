@@ -11,6 +11,7 @@ const initialState = {
 }
 
 // TODO change this form with react-hook-form with zod
+// so we can validate input in client, not in server
 export function PostUrlForm() {
 	const [state, formAction, isLoading] = useActionState(createUrlAction, initialState)
 
