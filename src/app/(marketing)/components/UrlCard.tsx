@@ -13,8 +13,8 @@ type UrlCardProps = z.infer<typeof SelectPublicUrlSchema>
 export default function UrlCard(props: UrlCardProps) {
 	const lastUpdated = relativeDate(new Date(props.updatedAt))
 
-	// get the domain only
-	const hostname = new URL(APP_FULL_URL).host
+	// get the root domain only (i.e without 'https://')
+	const domain = new URL(APP_FULL_URL).host
 
 	return (
 		<div className="flex w-full items-start border-neutral-border border-b border-solid px-6 py-6">
@@ -22,9 +22,9 @@ export default function UrlCard(props: UrlCardProps) {
 				<div className="flex w-full flex-col items-start gap-2">
 					<div className="flex w-full items-center justify-between">
 						<span className="font-body-bold text-body-bold text-default-font">
-							{`${hostname}/${props.shortUrl}`}
+							{`${domain}/${props.shortUrl}`}
 						</span>
-						<CopyButton shortUrl={`${hostname}/${props.shortUrl}`} />
+						<CopyButton shortUrl={`${domain}/${props.shortUrl}`} />
 					</div>
 					<LinkButton variant="neutral">
 						<Link href={props.originalUrl} target="_blank">
