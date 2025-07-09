@@ -4,8 +4,21 @@ import { getPlublicUrls } from "../_services/get-public-urls"
 import { SearchUrlTextField } from "./SearchUrlTextField"
 import UrlCard from "./UrlCard"
 
-export async function RightPageLayout() {
+export async function RightPageLayout({
+	searchParams
+}: {
+	searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+	const { q = "" } = await searchParams
+	const query = Array.isArray(q) ? q[0] : q
+
 	const urls = await getPlublicUrls()
+
+	const filteredUrls = query
+		? (urls ?? []).filter((url) => {
+				return url.originalUrl.includes(query)
+			})
+		: urls
 
 	return (
 		<div className="flex h-screen shrink-0 grow basis-0 flex-col items-start self-stretch overflow-hidden border-neutral-border border-l border-solid">
@@ -18,7 +31,7 @@ export async function RightPageLayout() {
 			</div>
 
 			<ScrollArea className="h-screen w-full overflow-scroll">
-				{urls.map((url) => (
+				{filteredUrls.map((url) => (
 					<UrlCard key={url.id} {...url} />
 				))}
 			</ScrollArea>
