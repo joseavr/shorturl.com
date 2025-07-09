@@ -10,6 +10,7 @@ const initialState = {
 	message: ""
 }
 
+// TODO change this form with react-hook-form with zod
 export function PostUrlForm() {
 	const [state, formAction, isLoading] = useActionState(createUrlAction, initialState)
 
