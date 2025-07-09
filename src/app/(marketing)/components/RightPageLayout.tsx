@@ -1,4 +1,4 @@
-import { ScrollArea, ScrollBar } from "@/ui/components/ScrollArea"
+import { ScrollArea } from "@/ui/components/ScrollArea"
 import { getPlublicUrls } from "../_services/get-public-urls"
 import { SearchUrlTextField } from "./SearchUrlTextField"
 import UrlCard from "./UrlCard"
@@ -15,12 +15,11 @@ export async function RightPageLayout() {
 
 				<SearchUrlTextField />
 			</div>
-			<ScrollArea className="h-full w-full overflow-scroll">
+
+			<ScrollArea className="h-screen w-full overflow-scroll">
 				{urls.map((url) => (
 					<UrlCard key={url.id} {...url} />
 				))}
-
-				<ScrollBar orientation="vertical" />
 			</ScrollArea>
 		</div>
 	)
