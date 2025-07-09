@@ -9,7 +9,13 @@ export function CopyButton({ shortUrl }: { shortUrl: string }) {
 
 	const Icon = isCopied ? FeatherCheckCheck : FeatherCopy
 
-	return <IconButton icon={<Icon />} onClick={handleCopy} />
+	return (
+		<IconButton
+			icon={<Icon />}
+			variant={isCopied ? "brand-tertiary" : undefined}
+			onClick={handleCopy}
+		/>
+	)
 }
 
 function useClipboard(text: string) {
