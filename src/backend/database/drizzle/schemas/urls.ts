@@ -14,11 +14,17 @@ export const urlTable = sqliteTable("urls", {
 	visibility: text("visibility", { enum: ["public", "private"] })
 		.notNull()
 		.default("private"),
-	createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-	updatedAt: text("updated_at")
+	createdAt: integer("created_at", {
+		mode: "timestamp_ms"
+	})
 		.notNull()
-		.default(sql`CURRENT_TIMESTAMP`)
-		.$onUpdate(() => sql`CURRENT_TIMESTAMP`)
+		.default(sql`(unixepoch() * 1000)`),
+	updatedAt: integer("updated_at", {
+		mode: "timestamp_ms"
+	})
+		.notNull()
+		.default(sql`(unixepoch() * 1000)`)
+		.$onUpdate(() => sql`(unixepoch() * 1000)`)
 })
 
 export const urlTableRelations = relations(urlTable, ({ one }) => ({
@@ -33,7 +39,9 @@ export const urlClickTable = sqliteTable("url_clicks", {
 	urlId: text("url_id")
 		.notNull()
 		.references(() => urlTable.id),
-	clickedAt: text("clicked_at").default(sql`CURRENT_TIMESTAMP`),
+	clickedAt: integer("clicked_at", {
+		mode: "timestamp_ms"
+	}).default(sql`(unixepoch() * 1000)`),
 	ipAddress: text("ip_address"),
 	userAgent: text("user_agent")
 })
