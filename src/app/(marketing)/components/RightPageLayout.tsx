@@ -1,3 +1,4 @@
+import { showUrlTextFieldFlag } from "@/feature-flag"
 import { ScrollArea } from "@/ui/components/ScrollArea"
 import { getPlublicUrls } from "../_services/get-public-urls"
 import { SearchUrlTextField } from "./SearchUrlTextField"
@@ -13,7 +14,7 @@ export async function RightPageLayout() {
 					Recently Shortened
 				</span>
 
-				<SearchUrlTextField />
+				{showUrlTextFieldFlag && <SearchUrlTextField />}
 			</div>
 
 			<ScrollArea className="h-screen w-full overflow-scroll">
