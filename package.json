@@ -20,7 +20,11 @@
     "db:local": "turso dev --db-file local.db",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+
+    "db:push:prod": "drizzle-kit push --config=drizzle-prod.config.ts",
+    "db:generate:prod": "drizzle-kit generate --config=drizzle-prod.config.ts",
+    "db:migrate:prod": "drizzle-kit migrate --config=drizzle-prod.config.ts"
   },
   "dependencies": {
     "@hono/zod-openapi": "0.19.9",
