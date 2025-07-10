@@ -6,6 +6,17 @@ if (process.env.NODE_ENV === 'development') setupDevPlatform();
 
 const nextConfig: NextConfig = {
   /* config options here */
+  experimental: {
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
+  },
+  logging: {
+    fetches: {
+      fullUrl: true
+    }
+  }
 };
 
 export default nextConfig;
