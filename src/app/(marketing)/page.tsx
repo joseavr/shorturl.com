@@ -1,4 +1,3 @@
-import type { ReadonlyURLSearchParams } from "next/navigation"
 import { DefaultPageLayout } from "@/ui"
 import { LeftPageLayout, RightPageLayout } from "./components"
 
