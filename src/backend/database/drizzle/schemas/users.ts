@@ -13,7 +13,8 @@ export const userTable = sqliteTable("users", {
 })
 
 export const userTableRelations = relations(userTable, ({ many }) => ({
-	urls: many(urlTable)
+	urls: many(urlTable),
+	accounts: many(accountTable)
 }))
 
 export const accountTable = sqliteTable(
@@ -33,10 +34,18 @@ export const accountTable = sqliteTable(
 	},
 	(account) => [
 		primaryKey({
-			columns: [account.provider, account.providerAccountId]
+			columns: [account.provider, account.providerAccountId],
+			name: "accounts_provider_provider_account_id_pk"
 		})
 	]
 )
+
+export const accountTableRelations = relations(accountTable, ({ one }) => ({
+	user: one(userTable, {
+		fields: [accountTable.userId],
+		references: [userTable.id]
+	})
+}))
 
 /********************
  *

@@ -10,7 +10,7 @@ export const urlTable = sqliteTable("urls", {
 		.$defaultFn(() => crypto.randomUUID()), // UUID or hash
 	originalUrl: text("original_url").notNull(),
 	shortUrl: text("short_code").unique().notNull(),
-	ownerId: text("owner_id").references(() => userTable.id),
+	ownerId: text("owner_id").references(() => userTable.id, { onDelete: "cascade" }),
 	visibility: text("visibility", { enum: ["public", "private"] })
 		.notNull()
 		.default("private"),
@@ -27,7 +27,8 @@ export const urlTable = sqliteTable("urls", {
 		.$onUpdate(() => sql`(unixepoch() * 1000)`)
 })
 
-export const urlTableRelations = relations(urlTable, ({ one }) => ({
+export const urlTableRelations = relations(urlTable, ({ one, many }) => ({
+	urlClicks: many(urlClickTable),
 	owner: one(userTable, {
 		fields: [urlTable.ownerId],
 		references: [userTable.id]
@@ -38,13 +39,19 @@ export const urlClickTable = sqliteTable("url_clicks", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	urlId: text("url_id")
 		.notNull()
-		.references(() => urlTable.id),
+		.references(() => urlTable.id, { onDelete: "cascade" }),
 	clickedAt: integer("clicked_at", {
 		mode: "timestamp_ms"
 	}).default(sql`(unixepoch() * 1000)`),
 	ipAddress: text("ip_address"),
 	userAgent: text("user_agent")
 })
+export const urlClickTableRelations = relations(urlClickTable, ({ one }) => ({
+	url: one(urlTable, {
+		fields: [urlClickTable.urlId],
+		references: [urlTable.id]
+	})
+}))
 
 /********************
  *
