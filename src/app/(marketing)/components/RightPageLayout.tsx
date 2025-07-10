@@ -1,6 +1,6 @@
 import { showUrlTextFieldFlag } from "@/feature-flag"
 import { ScrollArea } from "@/ui/components/ScrollArea"
-import { getPlublicUrls } from "../_services/get-public-urls"
+import { getPublicUrls } from "../_services/get-public-urls"
 import { SearchUrlTextField } from "./SearchUrlTextField"
 import UrlCard from "./UrlCard"
 
@@ -12,7 +12,7 @@ export async function RightPageLayout({
 	const { q = "" } = await searchParams
 	const query = Array.isArray(q) ? q[0] : q
 
-	const urls = await getPlublicUrls()
+	const urls = await getPublicUrls()
 
 	const filteredUrls = query
 		? (urls ?? []).filter((url) => {
