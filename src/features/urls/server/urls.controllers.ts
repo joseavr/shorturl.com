@@ -6,6 +6,7 @@ import { getServerSession } from "@/features/auth/lib/session"
 import type { AppRouteHandler } from "@/lib/types"
 import { onFailureResponse, onSuccessResponse } from "@/utils/http-response-factory"
 import * as HttpsCode from "@/utils/http-status-codes"
+import { createRateLimiter } from "@/utils/ratelimiter"
 import type {
 	deletePrivateRoute,
 	getAllPrivateRoute,
@@ -46,9 +47,8 @@ export const getAllPrivate: AppRouteHandler<getAllPrivateRoute> = async (c) => {
 }
 
 export const postPrivate: AppRouteHandler<postPrivateRoute> = async (c) => {
+	// authentication
 	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
-
-	// TODO what if user in db no exist...
 
 	if (!isAuthenticated) {
 		return c.json(
@@ -74,7 +74,27 @@ export const postPrivate: AppRouteHandler<postPrivateRoute> = async (c) => {
 
 export const postPublic: AppRouteHandler<postPublicRoute> = async (c) => {
 	{
-		// TODO add rate limiting
+		// Rate limit: 3 requests per day per IP
+		const ip =
+			c.req.header("x-forwarded-for")?.split(",")[0] ||
+			c.req.raw.headers.get?.("x-real-ip") ||
+			"unknown"
+		const ratelimiter = createRateLimiter(3, "1 d")
+		const { success, limit, remaining, reset } = await ratelimiter.limit(ip)
+		if (!success) {
+			return c.json(
+				onFailureResponse(
+					"TOO_MANY_REQUESTS",
+					"Too many requests. Please try again later."
+				),
+				HttpsCode.TOO_MANY_REQUESTS,
+				{
+					"X-RateLimit-Limit": limit.toString(),
+					"X-RateLimit-Remaining": remaining.toString(),
+					"X-RateLimit-Reset": reset.toString()
+				}
+			)
+		}
 
 		const url = c.req.valid("json")
 		const shortUrl = nanoid(8)

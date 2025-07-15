@@ -121,6 +121,14 @@ export const postPublic = createRoute({
 					schema: onFailureResponseSchema()
 				}
 			}
+		},
+		429: {
+			description: "Too many requests (rate limited)",
+			content: {
+				"application/json": {
+					schema: onFailureResponseSchema()
+				}
+			}
 		}
 	}
 })
