@@ -1,7 +1,8 @@
+import "server-only"
 import { and, eq } from "drizzle-orm"
-import { db } from "@/backend/database"
-import { accountTable, userTable } from "@/backend/database/drizzle/schemas"
-import type { AuthAccount, AuthUser, AuthUserWithId } from "./types"
+import { db } from "@/database"
+import { accountTable, userTable } from "@/database/drizzle/schemas"
+import type { AuthAccount, AuthUser, AuthUserWithId } from "../types"
 
 export const findUserByEmail = async (email: string) => {
 	return db.query.userTable.findFirst({
@@ -9,7 +10,7 @@ export const findUserByEmail = async (email: string) => {
 	})
 }
 
-export const findOrCreateUserByProviderAccount = async (
+export const findOrCreateUser = async (
 	user: AuthUser,
 	account: AuthAccount
 ): Promise<AuthUserWithId> => {
@@ -20,6 +21,7 @@ export const findOrCreateUserByProviderAccount = async (
 	//  - user has new tokens from Google (access_token, id_token, expires_at)
 	// 	- update user's account table with new tokens
 	//	- return found user
+	// ⚠️ Assume Google is the only provider. If different oroviders, must handle differently.
 	//
 	if (existingUser) {
 		await db
@@ -35,7 +37,7 @@ export const findOrCreateUserByProviderAccount = async (
 			.where(
 				and(
 					// Many accountTable can share userId field,
-					// so better check on uniques fields
+					// so better check on uniques fields such as providerAccountId
 					eq(accountTable.provider, account.provider),
 					eq(accountTable.providerAccountId, account.providerAccountId)
 				)

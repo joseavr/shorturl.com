@@ -2,9 +2,9 @@ import packageJSON from "@@/package.json"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { Scalar } from "@scalar/hono-api-reference"
 import { handle } from "hono/vercel"
-import { authRoute } from "@/backend/routes/auth/auth.route"
-import { urlsRoute } from "@/backend/routes/urls/urls.route"
-import type { AppBindings } from "@/backend/types"
+import { authRoute } from "@/features/auth/server/auth.route"
+import { urlsRoute } from "@/features/urls/server/urls.route"
+import type { AppBindings } from "@/lib/types"
 
 export const runtime = "edge"
 

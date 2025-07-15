@@ -1,29 +1,29 @@
 import { Hono } from "hono"
-import { OAuthParametersError } from "@/backend/auth/artic/errors"
-import { GoogleProvider } from "@/backend/auth/artic/google.provider"
-import {
-	clearUserAcessTokenDB,
-	findOrCreateUserByProviderAccount
-} from "@/backend/auth/artic/helpers"
 import {
 	deleteSessionTokenCookie,
-	generateTokenForSession,
-	getUserSession,
+	getServerSession,
 	setSessionTokenCookie
-} from "@/backend/auth/artic/session"
-import { handleError } from "@/backend/utils/handle-error"
+} from "@/features/auth/lib/session"
+import { handleError, OAuthParametersError } from "@/features/auth/server/errors"
+import { GoogleProvider } from "@/features/auth/services/artic/google.provider"
+import { generateJWTForSession } from "../lib/jwt"
+import { clearUserAcessTokenDB, findOrCreateUser } from "./db"
 
 const authRoute = new Hono()
 
-// Start Google OAuth
+/**
+ * Start Google OAuth
+ */
 authRoute.get("/google", (c) => {
 	const authUrl = GoogleProvider.getAuthURL()
-	console.log(authUrl)
+	console.log(authUrl) // !needed for testing
 
 	return c.redirect(`${authUrl}`)
 })
 
-// Google OAuth callback
+/**
+ * Google OAuth callback
+ */
 authRoute.get("/google/callback", async (c) => {
 	const { searchParams } = new URL(c.req.url)
 
@@ -37,49 +37,53 @@ authRoute.get("/google/callback", async (c) => {
 
 		const result = await GoogleProvider.validateCallback(code, state)
 
-		const user = await findOrCreateUserByProviderAccount(result.user, result.account)
+		const user = await findOrCreateUser(result.user, result.account)
 
-		const { token, expires } = await generateTokenForSession(user)
+		const { jwt, expires } = await generateJWTForSession(user)
 
-		// Use """JWT Session Strategy""" by storing the JWT in an HTTP-only cookie
-		setSessionTokenCookie(c, token, expires)
+		// Use `JWT Session Strategy` by storing the JWT in an HTTP-only cookie
+		setSessionTokenCookie(c, jwt, expires)
 
 		// TODO login success, then redirect to protected route.
 		return c.json({ message: "Login successful", user }, 200)
-	} catch (e) {
-		handleError(e, c)
+	} catch (error) {
+		handleError(error, c)
 	}
 })
 
 // Refresh Token Rotation
 authRoute.get("/refresh_token", async (c) => {
-	const session = await getUserSession(c.req.raw)
+	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
-	if (!session)
+	if (!isAuthenticated)
 		return c.json({ error: "UNAUTHORIZED", message: "Token missing or invalid" }, 401)
+
+	const currentUser = getUser()
 
 	// Fetch refresh token from `accounts` table and
 	// call `refreshAccessToken(userId)`
 	// Save new tokens to DB
-	await GoogleProvider.refreshAcessToken(session.user)
+	await GoogleProvider.refreshAcessToken(currentUser)
 
 	return c.json({ message: "Tokens refreshed" }, 200)
 })
 
 authRoute.get("/logout", async (c) => {
-	const session = await getUserSession(c.req.raw)
+	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
-	if (!session)
+	if (!isAuthenticated)
 		return c.json({ error: "UNAUTHORIZED", message: "Token missing or invalid" })
+
+	const currentUser = getUser()
 
 	// Invalidate session by clearing the session-token cookie
 	deleteSessionTokenCookie(c)
 
 	// Invalidate google access_token
-	GoogleProvider.invalidateAcessToken(session.user)
+	GoogleProvider.invalidateAcessToken(currentUser)
 
 	// Clear user access_token in DB
-	clearUserAcessTokenDB(session.user)
+	clearUserAcessTokenDB(currentUser)
 
 	return c.json({ message: "Logout successful" }, 200)
 })

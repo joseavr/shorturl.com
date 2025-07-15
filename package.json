@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "20.19.2"
+    "node": "22.17.0"
   },
   "scripts": {
     "dev": "NODE_OPTIONS='--inspect' next dev --turbopack",
@@ -21,7 +21,6 @@
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-
     "db:push:prod": "drizzle-kit push --config=drizzle-prod.config.ts",
     "db:generate:prod": "drizzle-kit generate --config=drizzle-prod.config.ts",
     "db:migrate:prod": "drizzle-kit migrate --config=drizzle-prod.config.ts"
@@ -47,6 +46,7 @@
     "npm": "^11.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^3.3.1",
     "tiny-relative-date": "^2.0.2",
     "zod": "^3.25.67",

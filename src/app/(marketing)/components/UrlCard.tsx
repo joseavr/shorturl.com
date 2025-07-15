@@ -2,7 +2,7 @@ import type { z } from "@hono/zod-openapi"
 import { FeatherEye } from "@subframe/core"
 import Link from "next/link"
 import relativeDate from "tiny-relative-date"
-import type { SelectPublicUrlSchema } from "@/backend/database/drizzle/schemas"
+import type { SelectPublicUrlSchema } from "@/database/drizzle/schemas"
 import { LinkButton } from "@/ui"
 import { CopyButton } from "./CopyButton"
 

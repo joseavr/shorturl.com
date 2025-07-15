@@ -32,10 +32,12 @@ export interface OAuthProvider {
 	invalidateAcessToken: (user: UserSession["user"]) => Promise<void>
 }
 
-// JWT
-// - iat number (in seconds)
-// - nbf number (in seconds)
-// - exp number (in seconds)
+/**
+ * JWT
+ * - iat number (in seconds)
+ * - nbf number (in seconds)
+ * - exp number (in seconds)
+ */
 export type AppJWTPayload = JWTPayload & { user: AuthUserWithId }
 
 export type UserSession = {
@@ -45,7 +47,15 @@ export type UserSession = {
 	// nbf?: JWTPayload["nbf"] // maybe use omit
 }
 
-export type GenerateTokenForSessionResult = {
-	token: string
-	expires: Date
-}
+export type GetServerSessionReturnType = Promise<
+	| {
+			isAuthenticated: false
+			getUser: null
+			getAcessToken: null
+	  }
+	| {
+			isAuthenticated: true
+			getUser: () => AuthUserWithId
+			getAcessToken: () => AppJWTPayload
+	  }
+>

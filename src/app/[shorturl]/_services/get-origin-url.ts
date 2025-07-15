@@ -1,4 +1,4 @@
-import { db } from "@/backend/database"
+import { db } from "@/database"
 
 export async function getOriginalUrl(shortUrl: string) {
 	const url = await db.query.urlTable.findFirst({

@@ -1,5 +1,5 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
-import type { AppBindings } from "@/backend/types"
+import type { AppBindings } from "@/lib/types"
 import * as urlControllers from "./urls.controllers"
 import * as urlOpenapiRoutes from "./urls.docs"
 

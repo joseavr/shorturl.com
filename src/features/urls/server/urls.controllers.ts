@@ -1,14 +1,11 @@
 import { and, eq } from "drizzle-orm"
 import { nanoid } from "nanoid"
-import { getUserSession } from "@/backend/auth/artic/session"
-import { db } from "@/backend/database"
-import { urlTable } from "@/backend/database/drizzle/schemas"
-import type { AppRouteHandler } from "@/backend/types"
-import {
-	onFailureResponse,
-	onSuccessResponse
-} from "@/backend/utils/http-response-factory"
-import * as HttpsCode from "@/backend/utils/http-status-codes"
+import { db } from "@/database"
+import { urlTable } from "@/database/drizzle/schemas"
+import { getServerSession } from "@/features/auth/lib/session"
+import type { AppRouteHandler } from "@/lib/types"
+import { onFailureResponse, onSuccessResponse } from "@/utils/http-response-factory"
+import * as HttpsCode from "@/utils/http-status-codes"
 import type {
 	deletePrivateRoute,
 	getAllPrivateRoute,
@@ -27,19 +24,21 @@ export const getAllPublic: AppRouteHandler<getAllPublicRoute> = async (c) => {
 }
 
 export const getAllPrivate: AppRouteHandler<getAllPrivateRoute> = async (c) => {
-	const session = await getUserSession(c.req.raw)
+	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
-	if (!session || !session.user) {
+	if (!isAuthenticated) {
 		return c.json(
 			onFailureResponse("UNAUTHORIZED", "Not authorized to make this request."),
 			HttpsCode.UNAUTHORIZED
 		)
 	}
 
+	const currentUser = getUser()
+
 	const urls = await db.query.urlTable.findMany({
 		where: and(
 			eq(urlTable.visibility, "private"),
-			eq(urlTable.ownerId, session?.user.userId)
+			eq(urlTable.ownerId, currentUser.userId)
 		)
 	})
 
@@ -47,16 +46,18 @@ export const getAllPrivate: AppRouteHandler<getAllPrivateRoute> = async (c) => {
 }
 
 export const postPrivate: AppRouteHandler<postPrivateRoute> = async (c) => {
-	const session = await getUserSession(c.req.raw)
+	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
 	// TODO what if user in db no exist...
 
-	if (!session || !session?.user) {
+	if (!isAuthenticated) {
 		return c.json(
 			onFailureResponse("UNAUTHORIZED", "Not authorized to make this request."),
 			HttpsCode.UNAUTHORIZED
 		)
 	}
+
+	const currentUser = getUser()
 
 	const url = c.req.valid("json")
 
@@ -65,7 +66,7 @@ export const postPrivate: AppRouteHandler<postPrivateRoute> = async (c) => {
 
 	const [newUrl] = await db
 		.insert(urlTable)
-		.values({ ...url, shortUrl, ownerId: session.user.userId })
+		.values({ ...url, shortUrl, ownerId: currentUser.userId })
 		.returning()
 
 	return c.json(onSuccessResponse(newUrl), 200)
@@ -88,14 +89,16 @@ export const postPublic: AppRouteHandler<postPublicRoute> = async (c) => {
 }
 
 export const patchPrivate: AppRouteHandler<patchPrivateRoute> = async (c) => {
-	const session = await getUserSession(c.req.raw)
+	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
-	if (!session || !session?.user) {
+	if (!isAuthenticated) {
 		return c.json(
 			onFailureResponse("UNAUTHORIZED", "Not authorized to make this request."),
 			HttpsCode.UNAUTHORIZED
 		)
 	}
+
+	const currentUser = getUser()
 
 	// get url by id and check if exist in db
 	const urlId = c.req.param("urlId")
@@ -110,7 +113,7 @@ export const patchPrivate: AppRouteHandler<patchPrivateRoute> = async (c) => {
 		)
 
 	// check if user owns this url
-	if (url.ownerId !== session.user.userId)
+	if (url.ownerId !== currentUser.userId)
 		return c.json(
 			onFailureResponse("UNAUTHORIZED", "Not authorized to make this request."),
 			HttpsCode.UNAUTHORIZED
@@ -146,14 +149,16 @@ export const patchPrivate: AppRouteHandler<patchPrivateRoute> = async (c) => {
 }
 
 export const deletePrivate: AppRouteHandler<deletePrivateRoute> = async (c) => {
-	const session = await getUserSession(c.req.raw)
+	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
-	if (!session || session?.user) {
+	if (!isAuthenticated) {
 		return c.json(
 			onFailureResponse("UNAUTHORIZED", "Not authorized to make this request."),
 			HttpsCode.UNAUTHORIZED
 		)
 	}
+
+	const currentUser = getUser()
 
 	// get url by id and check if exist in db
 	const urlId = c.req.param("urlId")
@@ -168,7 +173,7 @@ export const deletePrivate: AppRouteHandler<deletePrivateRoute> = async (c) => {
 		)
 
 	// check if user owns this url
-	if (url.ownerId !== session.user.userId)
+	if (url.ownerId !== currentUser.userId)
 		return c.json(
 			onFailureResponse("UNAUTHORIZED", "Not authorized to make this request."),
 			HttpsCode.UNAUTHORIZED

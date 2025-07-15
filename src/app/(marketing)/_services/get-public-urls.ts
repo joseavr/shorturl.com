@@ -1,6 +1,6 @@
 import z from "zod"
-import { SelectPublicUrlSchema } from "@/backend/database/drizzle/schemas"
-import { onSuccessResponseSchema } from "@/backend/utils/http-response-factory"
+import { SelectPublicUrlSchema } from "@/database/drizzle/schemas"
+import { onSuccessResponseSchema } from "@/utils/http-response-factory"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL
 const schema = onSuccessResponseSchema(z.array(SelectPublicUrlSchema))

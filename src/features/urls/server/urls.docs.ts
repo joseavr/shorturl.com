@@ -6,11 +6,11 @@ import {
 	SelectUrlSchema,
 	UpdateUrlSchema,
 	UrlIDParamSchema
-} from "@/backend/database/drizzle/schemas"
+} from "@/database/drizzle/schemas"
 import {
 	onFailureResponseSchema,
 	onSuccessResponseSchema
-} from "@/backend/utils/http-response-factory"
+} from "@/utils/http-response-factory"
 
 const TAGS = ["Urls"]
 

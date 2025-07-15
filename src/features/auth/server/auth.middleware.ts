@@ -1,6 +1,12 @@
 import type { MiddlewareHandler } from "hono"
-import { revalidateSessionToken, verifyToken } from "../auth/artic/jwt"
-import { getSessionTokenCookie, setSessionTokenCookie } from "../auth/artic/session"
+import {
+	revalidateSessionToken,
+	verifyToken
+} from "../../features/auth/services/artic/jwt"
+import {
+	getSessionTokenCookie,
+	setSessionTokenCookie
+} from "../../features/auth/services/artic/session"
 
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
 	//
