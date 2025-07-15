@@ -25,13 +25,6 @@ export interface OAuthCallbackResult {
 	account: AuthAccount
 }
 
-export interface OAuthProvider {
-	getAuthURL: () => string
-	validateCallback: (code: string, state: string) => Promise<OAuthCallbackResult>
-	refreshAcessToken: (user: UserSession["user"]) => Promise<void>
-	invalidateAcessToken: (user: UserSession["user"]) => Promise<void>
-}
-
 /**
  * JWT
  * - iat number (in seconds)
@@ -39,13 +32,6 @@ export interface OAuthProvider {
  * - exp number (in seconds)
  */
 export type AppJWTPayload = JWTPayload & { user: AuthUserWithId }
-
-export type UserSession = {
-	user: AuthUserWithId
-	exp: JWTPayload["exp"]
-	// iat?: JWTPayload["iat"] // maybe use omit
-	// nbf?: JWTPayload["nbf"] // maybe use omit
-}
 
 export type GetServerSessionReturnType = Promise<
 	| {

@@ -1,6 +1,3 @@
-// TODO https://www.youtube.com/watch?v=3GJYIzoKwEw&ab_channel=ByteGrad
-// TODO change the auth api similar to kinde
-
 import type { Context } from "hono"
 import { deleteCookie, getCookie, setCookie } from "hono/cookie"
 import type { GetServerSessionReturnType } from "../types"
@@ -51,15 +48,11 @@ export const getServerSession = async (req: Request): GetServerSessionReturnType
 			isAuthenticated: false,
 			getUser: null,
 			getAcessToken: null
-			// getIdToken: () => null,
-			// getClaim: () => null
 		}
 	}
 	return {
 		isAuthenticated: true,
 		getUser: () => decodedToken.user,
 		getAcessToken: () => decodedToken
-		// getIdToken: () => null,
-		// getClaim: () => null
 	}
 }

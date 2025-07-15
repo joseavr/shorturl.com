@@ -1,10 +1,13 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: only for process.env until Implement .env with zod */
 import * as arctic from "arctic"
 import { and, eq } from "drizzle-orm"
+import type { Context } from "hono"
+import { getCookie } from "hono/cookie"
 import { db } from "@/database"
 import { accountTable } from "@/database/drizzle/schemas"
 import { RefreshTokenError, StateOrVerifierError } from "../../server/errors"
-import type { AuthAccount, AuthUser, UserSession } from "../../types"
+import type { AuthAccount, AuthUser, AuthUserWithId } from "../../types"
+import type { GoogleClaims } from "./type"
 
 /**
  * Google OAuth2.0 Provider class for handling authentication with Google services.
@@ -26,15 +29,22 @@ class GoogleProviderClass {
 	private redirectUri: string
 	/** Arctic Google OAuth2.0 client instance */
 	public google: arctic.Google
-	/** Temporary storage for OAuth2.0 state and code verifier pairs */
-	public tempStore: Map<string, string>
 
 	constructor() {
 		this.clientId = process.env.GOOGLE_CLIENT_ID!
 		this.clientSecret = process.env.GOOGLE_CLIENT_SECRET!
 		this.redirectUri = process.env.GOOGLE_REDIRECT_URI!
 		this.google = new arctic.Google(this.clientId, this.clientSecret, this.redirectUri)
-		this.tempStore = new Map<string, string>()
+	}
+
+	generateStateAndVerifier() {
+		const state = arctic.generateState()
+		const codeVerifier = arctic.generateCodeVerifier()
+
+		return {
+			state,
+			codeVerifier
+		}
 	}
 
 	/**
@@ -48,15 +58,12 @@ class GoogleProviderClass {
 	 * - `access_type: offline` To get refresh tokens without requiring the user to re-authenticate
 	 *
 	 */
-	getAuthURL() {
-		const state = arctic.generateState()
-		const codeVerifier = arctic.generateCodeVerifier()
+	getAuthURL(state: string, codeVerifier: string) {
 		const scopes = ["openid", "profile", "email"]
 		const url = this.google.createAuthorizationURL(state, codeVerifier, scopes)
 
 		url.searchParams.set("access_type", "offline")
 
-		this.tempStore.set(state, codeVerifier) //! stored in-memory but also can be stored in cookies
 		return url.toString()
 	}
 
@@ -70,7 +77,7 @@ class GoogleProviderClass {
 	 * 3. Google sends back the 'state' string via searchParams to our app.
 	 * 4. Using the 'state', our app must retrieve 'codeVerifier' and send it when exchaning 'code' for tokens.
 	 *
-	 * @param {string} code - The authorization code returned by Google via searchParams to be exchanged for:
+	 * @param {string} code - The authorization code returned by Google via searchParams to exchange for:
 	 * 	- Access Token: A token that gives authorization on retrieving user data in Google.
 	 * 	- ID Token: A token containing user identity information, such as email and name.
 	 * 	- Refresh Token: A token to refresh the `access_token`
@@ -82,12 +89,11 @@ class GoogleProviderClass {
 	 *
 	 */
 	async validateCallback(
+		c: Context,
 		code: string,
 		state: string
-	): Promise<{ user: AuthUser; account: AuthAccount; idToken: string; claims: any }> {
-		const verifier = this.tempStore.get(state)
-
-		console.log({ tempStore: this.tempStore }) //! should store? what if different request?
+	): Promise<{ user: AuthUser; account: AuthAccount }> {
+		const verifier = getCookie(c, state)
 
 		if (!verifier) throw new StateOrVerifierError("Invalid state or verifier")
 
@@ -95,14 +101,7 @@ class GoogleProviderClass {
 		const tokens = await this.google.validateAuthorizationCode(code, verifier)
 
 		// Decode id_token to get user basic information
-		const claims = arctic.decodeIdToken(tokens.idToken()) as {
-			sub: string
-			email: string
-			name: string
-			picture: string
-		}
-
-		console.log({ tokens: tokens, idToken: tokens.idToken(), claims })
+		const claims = arctic.decodeIdToken(tokens.idToken()) as GoogleClaims
 
 		const user: AuthUser = {
 			email: claims.email,
@@ -124,9 +123,7 @@ class GoogleProviderClass {
 
 		return {
 			user,
-			account,
-			idToken: tokens.idToken(),
-			claims
+			account
 		}
 	}
 
@@ -140,28 +137,23 @@ class GoogleProviderClass {
 	 * ⚠️ **Important**: Do not use this method in middleware as it
 	 * requires database access, which defeats the purpose of stateless authentication.
 	 *
-	 * @param {UserSession["user"]} user - The user session containing userId and provider
+	 * @param {string} userId - The user Id
 	 * @returns {Promise<void>} Resolves when token refresh is complete
 	 *
 	 * @throws {RefreshTokenError} If refresh token is missing or invalid
 	 * @throws {Error} If database operations fail
 	 *
 	 */
-	async refreshAcessToken(user: UserSession["user"]): Promise<void> {
+	async refreshAcessToken(userId: string): Promise<void> {
 		// Find `refreshToken` from `accounts` table
-		// by the userID and provider="google"|"githhub"|...
+		// by the userID and provider="google"
 		const account = await db
 			.select({
 				refreshToken: accountTable.refresh_token,
 				expiresAt: accountTable.expires_at
 			})
 			.from(accountTable)
-			.where(
-				and(
-					eq(accountTable.userId, user.userId),
-					eq(accountTable.provider, user.provider)
-				)
-			)
+			.where(and(eq(accountTable.userId, userId), eq(accountTable.provider, "google")))
 			.limit(1)
 			.then((arr) => arr[0])
 
@@ -186,12 +178,7 @@ class GoogleProviderClass {
 					? tokens.refreshToken()
 					: account.refreshToken
 			})
-			.where(
-				and(
-					eq(accountTable.userId, user.userId),
-					eq(accountTable.provider, user.provider)
-				)
-			)
+			.where(and(eq(accountTable.userId, userId), eq(accountTable.provider, "google")))
 	}
 
 	/**
@@ -204,25 +191,20 @@ class GoogleProviderClass {
 	 * Use Cases:
 	 * - When the user logs out
 	 *
-	 * @param {UserSession["user"]} user - The user session containing userId and provider
+	 * @param {AuthUserWithId} user - The user session containing userId and provider
 	 * @returns {Promise<void>} Resolves when token revocation is complete
 	 *
 	 * @throws {Error} If no access token is found or revocation fails
 	 *
 	 */
-	async invalidateAcessToken(user: UserSession["user"]): Promise<void> {
+	async invalidateAcessToken(userId: string): Promise<void> {
 		// Find the account to get the access token
 		const account = await db
 			.select({
 				accessToken: accountTable.access_token
 			})
 			.from(accountTable)
-			.where(
-				and(
-					eq(accountTable.userId, user.userId),
-					eq(accountTable.provider, user.provider)
-				)
-			)
+			.where(and(eq(accountTable.userId, userId), eq(accountTable.provider, "google")))
 			.limit(1)
 			.then((arr) => arr[0])
 

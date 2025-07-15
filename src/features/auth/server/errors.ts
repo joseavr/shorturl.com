@@ -8,6 +8,7 @@
 // 		}
 // 	}
 
+import * as arctic from "arctic"
 import { DrizzleError } from "drizzle-orm"
 import type { Context } from "hono"
 
@@ -40,6 +41,10 @@ export class RefreshTokenError extends Error {
 }
 
 export function handleError(e: unknown, c: Context) {
+	if (e instanceof arctic.OAuth2RequestError) {
+		return c.json({ error: e.name, message: e.message })
+	}
+
 	if (e instanceof DrizzleError) {
 		return c.json({ error: e.name, message: e.message }, 500)
 	}
@@ -53,11 +58,11 @@ export function handleError(e: unknown, c: Context) {
 	}
 
 	if (e instanceof StateOrVerifierError) {
-		return c.json({ error: e.name, message: e.message })
+		return c.json({ error: e.name, message: e.message }, 400)
 	}
 
 	if (e instanceof RefreshTokenError) {
-		return c.json({ error: e.name, message: e.message })
+		return c.json({ error: e.name, message: e.message }, 400)
 	}
 
 	console.error({
