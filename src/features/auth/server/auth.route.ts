@@ -87,7 +87,7 @@ authRoute.get("/refresh_token", async (c) => {
 /**
  * Logout user
  */
-authRoute.get("/logout", async (c) => {
+authRoute.post("/logout", async (c) => {
 	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
 	if (!isAuthenticated)

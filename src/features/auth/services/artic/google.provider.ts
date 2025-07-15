@@ -214,8 +214,6 @@ class GoogleProviderClass {
 
 		// Revoke the access token in Google
 		await this.google.revokeToken(account.accessToken)
-
-		// Also clear the token from the database
 	}
 }
 
