@@ -1,4 +1,5 @@
 import { Hono } from "hono"
+import { getCookie, setCookie } from "hono/cookie"
 import {
 	deleteSessionTokenCookie,
 	getServerSession,
@@ -15,7 +16,18 @@ const authRoute = new Hono()
  * Start Google OAuth
  */
 authRoute.get("/google", (c) => {
-	const authUrl = GoogleProvider.getAuthURL()
+	const { state, codeVerifier } = GoogleProvider.generateStateAndVerifier()
+
+	const authUrl = GoogleProvider.getAuthURL(state, codeVerifier)
+
+	setCookie(c, state, codeVerifier, {
+		httpOnly: true,
+		sameSite: "Lax", // changed from "Strict" to "Lax" for OAuth compatibility
+		secure: process.env.NODE_ENV === "production",
+		expires: new Date(Math.floor(Date.now()) + 60 * 3 * 1000), // only 3m for login process
+		path: "/"
+	})
+
 	console.log(authUrl) // !needed for testing
 
 	return c.redirect(`${authUrl}`)
@@ -35,7 +47,10 @@ authRoute.get("/google/callback", async (c) => {
 	try {
 		if (!code || !state) throw new OAuthParametersError("Missing / invalid code or state")
 
-		const result = await GoogleProvider.validateCallback(code, state)
+		const verifier = getCookie(c, state)
+		console.log("verifier from cookie", { verifier })
+
+		const result = await GoogleProvider.validateCallback(c, code, state)
 
 		const user = await findOrCreateUser(result.user, result.account)
 
@@ -44,14 +59,15 @@ authRoute.get("/google/callback", async (c) => {
 		// Use `JWT Session Strategy` by storing the JWT in an HTTP-only cookie
 		setSessionTokenCookie(c, jwt, expires)
 
-		// TODO login success, then redirect to protected route.
 		return c.json({ message: "Login successful", user }, 200)
 	} catch (error) {
-		handleError(error, c)
+		return handleError(error, c)
 	}
 })
 
-// Refresh Token Rotation
+/**
+ * Refresh Token Rotation
+ */
 authRoute.get("/refresh_token", async (c) => {
 	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
@@ -63,11 +79,14 @@ authRoute.get("/refresh_token", async (c) => {
 	// Fetch refresh token from `accounts` table and
 	// call `refreshAccessToken(userId)`
 	// Save new tokens to DB
-	await GoogleProvider.refreshAcessToken(currentUser)
+	await GoogleProvider.refreshAcessToken(currentUser.userId)
 
 	return c.json({ message: "Tokens refreshed" }, 200)
 })
 
+/**
+ * Logout user
+ */
 authRoute.get("/logout", async (c) => {
 	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
@@ -79,13 +98,17 @@ authRoute.get("/logout", async (c) => {
 	// Invalidate session by clearing the session-token cookie
 	deleteSessionTokenCookie(c)
 
-	// Invalidate google access_token
-	GoogleProvider.invalidateAcessToken(currentUser)
+	try {
+		// Invalidate google access_token
+		await GoogleProvider.invalidateAcessToken(currentUser.userId)
 
-	// Clear user access_token in DB
-	clearUserAcessTokenDB(currentUser)
+		// Clear user access_token in DB
+		clearUserAcessTokenDB(currentUser)
 
-	return c.json({ message: "Logout successful" }, 200)
+		return c.json({ message: "Logout successful" }, 200)
+	} catch (error) {
+		handleError(error, c)
+	}
 })
 
 export { authRoute }
