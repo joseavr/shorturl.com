@@ -1,5 +1,5 @@
 import { Hono } from "hono"
-import { getCookie, setCookie } from "hono/cookie"
+import { setCookie } from "hono/cookie"
 import {
 	deleteSessionTokenCookie,
 	getServerSession,
@@ -46,9 +46,6 @@ authRoute.get("/google/callback", async (c) => {
 
 	try {
 		if (!code || !state) throw new OAuthParametersError("Missing / invalid code or state")
-
-		const verifier = getCookie(c, state)
-		console.log("verifier from cookie", { verifier })
 
 		const result = await GoogleProvider.validateCallback(c, code, state)
 
