@@ -16,7 +16,10 @@ const nextConfig: NextConfig = {
     fetches: {
       fullUrl: true
     }
-  }
+  },
+  eslint: {
+    ignoreDuringBuilds: true, // I dont use ESLINT!! Ignore that sht when deploying
+  },
 };
 
 export default nextConfig;
