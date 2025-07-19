@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: It is fine to have any in this file */
 import type { Hook } from "@hono/zod-openapi"
 
 import { UNPROCESSABLE_ENTITY } from "./http-status-codes"

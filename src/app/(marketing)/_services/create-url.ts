@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache"
 import { InsertPublicUrlSchema } from "@/database/drizzle/schemas"
 
-export async function createUrlAction(_prevState: any, formData: FormData) {
+interface ActionReturn {
+	sucess: boolean
+	message: string
+}
+
+export async function createUrlAction(_prevState: ActionReturn, formData: FormData) {
 	const validatedFields = InsertPublicUrlSchema.safeParse({
 		originalUrl: formData.get("url")
 	})

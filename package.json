@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome lint ./src",
-    "pages:deploy": "wrangler pages deploy .vercel/output/static  --project-name cf-next-hono",
+    "pages:deploy": "wrangler pages deploy .vercel/output/static --project-name cf-next-hono",
     "api:deploy": "wrangler deploy --minify --name cf-next-hono src/app/api/[[...route]]/route.ts",
     "cf:build": "bun run lint && bunx @cloudflare/next-on-pages",
     "cf:preview": "bun run cf:build && bunx wrangler pages dev .vercel/output/static",
