@@ -7,7 +7,7 @@ import { createUrlAction } from "../_services/create-url"
 
 const initialState = {
 	success: true,
-	message: ""
+	message: undefined
 }
 
 // TODO change this form with react-hook-form with zod

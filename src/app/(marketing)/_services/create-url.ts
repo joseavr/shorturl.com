@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache"
 import { InsertPublicUrlSchema } from "@/database/drizzle/schemas"
 
 interface ActionReturn {
-	sucess: boolean
-	message: string
+	success: boolean
+	message: string | undefined
 }
 
 export async function createUrlAction(_prevState: ActionReturn, formData: FormData) {
