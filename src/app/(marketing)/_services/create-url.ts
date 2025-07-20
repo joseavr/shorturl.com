@@ -1,6 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { appUrl } from "@/const"
 import { InsertPublicUrlSchema } from "@/database/drizzle/schemas"
 
 interface ActionReturn {
@@ -22,7 +23,7 @@ export async function createUrlAction(_prevState: ActionReturn, formData: FormDa
 	}
 
 	// Mutate data
-	await fetch("http://localhost:3000/api/urls/public", {
+	await fetch(`${appUrl}/api/urls/public`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"

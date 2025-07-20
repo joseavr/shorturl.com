@@ -1,7 +1,7 @@
 import { createClient } from "@libsql/client/web" // client/web for edge environment
 import { drizzle } from "drizzle-orm/libsql"
+import { isDev } from "@/const"
 import * as schema from "@/database/drizzle/schemas"
-import { isDev } from "@/feature-flag"
 
 //
 // This creates a client connection to the Turso database

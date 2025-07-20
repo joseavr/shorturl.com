@@ -2,11 +2,10 @@ import type { z } from "@hono/zod-openapi"
 import { FeatherEye } from "@subframe/core"
 import Link from "next/link"
 import relativeDate from "tiny-relative-date"
+import { appUrl } from "@/const"
 import type { SelectPublicUrlSchema } from "@/database/drizzle/schemas"
 import { LinkButton } from "@/ui"
 import { CopyButton } from "./CopyButton"
-
-const APP_FULL_URL = process.env.NEXT_PUBLIC_APP_URL as string
 
 type UrlCardProps = z.infer<typeof SelectPublicUrlSchema>
 
@@ -14,7 +13,7 @@ export default function UrlCard(props: UrlCardProps) {
 	const lastUpdated = relativeDate(new Date(props.updatedAt))
 
 	// get the root domain only (i.e without 'https://')
-	const domain = new URL(APP_FULL_URL).host
+	const domain = new URL(appUrl).host
 
 	return (
 		<div className="flex w-full items-start border-neutral-border border-b border-solid px-6 py-6">

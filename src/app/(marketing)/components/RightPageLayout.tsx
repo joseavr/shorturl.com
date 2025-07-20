@@ -1,4 +1,4 @@
-import { showUrlTextFieldFlag } from "@/feature-flag"
+import { showUrlTextFieldFlag } from "@/const"
 import { ScrollArea } from "@/ui/components/ScrollArea"
 import { getPublicUrls } from "../_services/get-public-urls"
 import { SearchUrlTextField } from "./SearchUrlTextField"
