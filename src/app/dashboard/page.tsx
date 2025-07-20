@@ -1,5 +1,5 @@
-import { PrivateUrlDashboard } from "@/features/dashboard/PrivateUrlDashboard"
+import { PrivateDashboard } from "@/features/dashboard/PrivateDashboard"
 
 export default function DashboardPage() {
-	return <PrivateUrlDashboard />
+	return <PrivateDashboard />
 }
