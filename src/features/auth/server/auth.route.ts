@@ -1,6 +1,6 @@
 import { Hono } from "hono"
 import { setCookie } from "hono/cookie"
-import { appUrl, isDev } from "@/const"
+import { appUrl } from "@/const"
 import {
 	deleteSessionTokenCookie,
 	getServerSession,
@@ -8,6 +8,7 @@ import {
 } from "@/features/auth/lib/session"
 import { handleError, OAuthParametersError } from "@/features/auth/server/errors"
 import { GoogleProvider } from "@/features/auth/services/artic/google.provider"
+import { MOVED_TEMPORARILY, UNAUTHORIZED } from "@/utils/http-status-codes"
 import { generateJWTForSession } from "../lib/jwt"
 import { clearUserAcessTokenDB, findOrCreateUser } from "./db"
 
@@ -25,11 +26,11 @@ authRoute.get("/google", (c) => {
 		httpOnly: true,
 		sameSite: "Lax", // changed from "Strict" to "Lax" for OAuth flow
 		secure: process.env.NODE_ENV === "production",
-		expires: new Date(Date.now() + 1000 * 60 * 3), // only 3m for login process
+		expires: new Date(Date.now() + 1000 * 30), // only 30 seconds for login process
 		path: "/"
 	})
 
-	return c.redirect(authUrl)
+	return c.redirect(authUrl, MOVED_TEMPORARILY)
 })
 
 /**
@@ -55,7 +56,6 @@ authRoute.get("/google/callback", async (c) => {
 		// Use `JWT Session Strategy` by storing the JWT in an HTTP-only cookie
 		setSessionTokenCookie(c, jwt, expires)
 
-		isDev && console.log({ message: "Login successful", user })
 		return c.redirect(`${appUrl}/dashboard`)
 	} catch (error) {
 		return handleError(error, c)
@@ -88,7 +88,10 @@ authRoute.post("/logout", async (c) => {
 	const { isAuthenticated, getUser } = await getServerSession(c.req.raw)
 
 	if (!isAuthenticated)
-		return c.json({ error: "UNAUTHORIZED", message: "Token missing or invalid" })
+		return c.json(
+			{ error: "UNAUTHORIZED", message: "Token missing or invalid" },
+			UNAUTHORIZED
+		)
 
 	const currentUser = getUser()
 

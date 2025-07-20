@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
+import { isDev } from "@/const"
 import { Avatar, DropdownMenu } from "@/ui"
 
 // TODO types
@@ -13,9 +14,9 @@ export function ProfileDropdown({ user }: { user: any }) {
 	const menuRef = useRef<HTMLDivElement>(null)
 
 	const handleLogout = useCallback(async () => {
-		await fetch("/api/auth/logout", { method: "POST" })
+		const response = await fetch("/api/auth/logout", { method: "POST" })
+		isDev && console.log("\nlogout response status code\n", response.status)
 		router.refresh()
-		router.push("/")
 	}, [router])
 
 	// Close dropdown on outside click
