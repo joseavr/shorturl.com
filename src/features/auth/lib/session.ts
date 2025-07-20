@@ -1,3 +1,4 @@
+import "server-only"
 import type { Context } from "hono"
 import { deleteCookie, getCookie, setCookie } from "hono/cookie"
 import type { GetServerSessionReturnType } from "../types"
@@ -31,7 +32,7 @@ export const deleteSessionTokenCookie = (c: Context) => {
 }
 
 export const getServerSession = async (req: Request): GetServerSessionReturnType => {
-	const cookie = req.headers.get("Cookie")?.match(/session-token=([^;]+)/)
+	const cookie = req.headers.get("cookie")?.match(/session-token=([^;]+)/)
 	if (!cookie) {
 		return {
 			isAuthenticated: false,
@@ -40,7 +41,7 @@ export const getServerSession = async (req: Request): GetServerSessionReturnType
 		}
 	}
 
-	const [_fullMatch, jwt] = cookie
+	const jwt = cookie[1]
 	const { error, decodedToken } = await verifyToken(jwt)
 
 	if (error) {
