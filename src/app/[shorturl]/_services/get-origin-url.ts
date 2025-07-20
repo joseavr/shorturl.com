@@ -1,3 +1,4 @@
+import "server-only"
 import { db } from "@/database"
 
 export async function getOriginalUrl(shortUrl: string) {

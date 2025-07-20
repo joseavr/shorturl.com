@@ -7,7 +7,9 @@ import type { SelectPublicUrlSchema } from "@/database/drizzle/schemas"
 import { LinkButton } from "@/ui"
 import { CopyButton } from "./CopyButton"
 
-type UrlCardProps = z.infer<typeof SelectPublicUrlSchema>
+type UrlCardProps = z.infer<typeof SelectPublicUrlSchema> & {
+	clickCount: number
+}
 
 export default function UrlCard(props: UrlCardProps) {
 	const lastUpdated = relativeDate(new Date(props.updatedAt))
@@ -34,7 +36,7 @@ export default function UrlCard(props: UrlCardProps) {
 				<div className="flex items-center gap-4">
 					<div className="flex items-center gap-1">
 						<FeatherEye className="font-body text-body text-subtext-color" />
-						<span className="font-body text-body text-subtext-color">89 views</span>
+						<span className="font-body text-body text-subtext-color">{`${props.clickCount}`}</span>
 					</div>
 					<span className="font-body text-body text-subtext-color">•</span>
 					<span className="font-body text-body text-subtext-color">{lastUpdated}</span>

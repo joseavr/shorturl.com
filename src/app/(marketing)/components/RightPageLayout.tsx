@@ -24,21 +24,16 @@ export async function RightPageLayout({
 	return (
 		<div className="flex h-screen shrink-0 grow basis-0 flex-col items-start self-stretch overflow-hidden border-neutral-border border-l border-solid">
 			<div className="flex h-20 w-full flex-none items-center justify-between border-neutral-border border-b border-solid px-6 py-6 ">
-				<div className="flex flex-col gap-1">
-					<span className="shrink-0 grow basis-0 font-heading-3 text-default-font text-heading-3">
-						Recently Shortened
-					</span>
-					<span className="text-muted-foreground text-sm">
-						Total clicks: {clickCount.toLocaleString()}
-					</span>
-				</div>
+				<span className="shrink-0 grow basis-0 font-heading-3 text-default-font text-heading-3">
+					Recently Shortened
+				</span>
 
 				{showUrlTextFieldFlag && <SearchUrlTextField />}
 			</div>
 
 			<ScrollArea className="h-screen w-full overflow-scroll">
 				{filteredUrls.map((url) => (
-					<UrlCard key={url.id} {...url} />
+					<UrlCard key={url.id} {...url} clickCount={clickCount} />
 				))}
 			</ScrollArea>
 		</div>

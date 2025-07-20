@@ -8,7 +8,10 @@ export async function trackUrlClick(urlId: string) {
 	// Get IP address from headers
 	const forwarded = headersList.get("x-forwarded-for")
 	const realIp = headersList.get("x-real-ip")
-	const ipAddress = forwarded?.split(",")[0] || realIp || "unknown"
+	const ipAddress =
+		forwarded?.split(",")[0] === "::1"
+			? "localhost"
+			: forwarded?.split(",")[0] || realIp || "unknown"
 
 	// Get user agent from headers
 	const userAgent = headersList.get("user-agent") || "unknown"
