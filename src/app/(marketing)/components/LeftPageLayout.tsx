@@ -52,12 +52,12 @@ export async function LeftPageLayout() {
 								variant="brand-secondary"
 								size="large"
 							>
-								<Link href="/api/auth/google">
+								<a href="/api/auth/google">
 									Create an account with{" "}
 									<IconWrapper>
 										<GoogleIcon />
 									</IconWrapper>
-								</Link>
+								</a>
 							</Button>
 							<span className="font-body text-body text-subtext-color">
 								Get access to private links and detailed analytics
