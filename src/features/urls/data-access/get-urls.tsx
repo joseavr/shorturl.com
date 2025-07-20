@@ -1,6 +1,7 @@
 import "server-only"
 
 import { eq } from "drizzle-orm"
+import { unstable_cache as next_cache } from "next/cache"
 import z from "zod"
 import { db } from "@/database"
 import { SelectPrivateUrlSchema, urlTable } from "@/database/drizzle/schemas"
@@ -33,3 +34,7 @@ export async function getPrivateUrls(): Promise<UrlsResponse> {
 
 	return urlsWithClicksCount
 }
+
+export const getPrivateUrlsCache = next_cache(getPrivateUrls, ["get:urls"], {
+	tags: ["get:urls"]
+})

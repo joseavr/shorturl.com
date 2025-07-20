@@ -12,6 +12,7 @@ import { SelectPrivateUrlSchema } from "@/database/drizzle/schemas"
 import { relativeDate } from "@/lib/relativeDate"
 import { Badge, DropdownMenu, IconButton, Table } from "@/ui"
 import { onSuccessResponseSchema } from "@/utils/http-response-factory"
+import { TableMenuActionsFG } from "@/flags"
 
 const schema = onSuccessResponseSchema(z.array(SelectPrivateUrlSchema))
 type UrlsResponse = z.infer<typeof schema>
@@ -68,7 +69,7 @@ export function UrlTable({ urls }: Props) {
 						<Table.Cell>
 							<div className="flex shrink-0 grow basis-0 items-center justify-end">
 								<SubframeCore.DropdownMenu.Root>
-									<SubframeCore.DropdownMenu.Trigger asChild={true}>
+									<SubframeCore.DropdownMenu.Trigger asChild={true} disabled={TableMenuActionsFG}>
 										<IconButton
 											icon={<FeatherMoreHorizontal />}
 											onClick={(_event: React.MouseEvent<HTMLButtonElement>) => {}}

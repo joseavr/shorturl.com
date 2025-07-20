@@ -9,7 +9,7 @@ import { UrlTable } from "@/features/dashboard/_components/UrlTable"
 import { Breadcrumbs, BreadcrumbsDivider, BreadcrumbsItem } from "@/ui"
 import { DefaultPageLayout } from "@/ui/layouts/DefaultPageLayout"
 import { getServerSessionCache } from "../auth/lib/session"
-import { getPrivateUrls } from "../urls/data-access/get-urls"
+import {  getPrivateUrlsCache } from "../urls/data-access/get-urls"
 import { ProfileDropdown } from "./_components/ProfileDropdown"
 
 export async function PrivateDashboard() {
@@ -17,7 +17,7 @@ export async function PrivateDashboard() {
 
 	if (!isAuthenticated) redirect("/")
 
-	const urls = await getPrivateUrls()
+	const urls = await getPrivateUrlsCache()
 
 	const user = getUser()
 

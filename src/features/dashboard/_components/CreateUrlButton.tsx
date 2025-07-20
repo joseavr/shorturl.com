@@ -1,9 +1,10 @@
 "use client"
 
 import { FeatherEye, FeatherLink, FeatherPlus, FeatherX } from "@subframe/core"
-import { useRouter } from "next/navigation"
 import { useId, useState } from "react"
 import { Alert, Button, Dialog, Select, TextField, TextFieldInput } from "@/ui"
+import { usePendingAction } from "@/utils/usePendingAction"
+import { revalidateAction } from "../actions/revalidate-action"
 
 interface CreateUrlFormData {
 	originalUrl: string
@@ -21,7 +22,7 @@ export function CreateUrlButton() {
 	const [error, setError] = useState<string | null>(null)
 	const [success, setSuccess] = useState<string | null>(null)
 	const inputId = useId()
-	const router = useRouter()
+	const [_pending, handleRevalidate] = usePendingAction(revalidateAction)
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -52,11 +53,10 @@ export function CreateUrlButton() {
 				setIsOpen(false)
 				setSuccess(null)
 				setIsLoading(false)
+				handleRevalidate("/dashboard")
 			}, 1500)
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "An unexpected error occurred")
-		} finally {
-			router.refresh()
 		}
 	}
 
