@@ -24,15 +24,11 @@ authRoute.get("/google", (c) => {
 		httpOnly: true,
 		sameSite: "Lax", // changed from "Strict" to "Lax" for OAuth flow
 		secure: process.env.NODE_ENV === "production",
-		expires: new Date(Math.floor(Date.now()) + 60 * 3 * 1000), // only 3m for login process
+		expires: new Date(Date.now() + 1000 * 60 * 3), // only 3m for login process
 		path: "/"
 	})
 
-	if (process.env.NODE_ENV === "development") {
-		console.log(authUrl) // !needed for testing
-	}
-
-	return c.redirect(`${authUrl}`)
+	return c.redirect(authUrl)
 })
 
 /**
