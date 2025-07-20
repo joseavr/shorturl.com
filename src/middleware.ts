@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
 	// Check if the route is protected
 	if (isProtectedRoute(pathname)) {
 		// Get JWT token from cookies
-		const { isAuthenticated } = await getServerSessionCache()
+		const { isAuthenticated } = await getServerSessionCache(request)
 
 		if (!isAuthenticated) {
 			return NextResponse.redirect(new URL("/", request.url))

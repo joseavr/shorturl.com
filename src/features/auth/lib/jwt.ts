@@ -4,7 +4,7 @@ import { SignJwtError } from "../server/errors"
 import type { AppJWTPayload, AuthUserWithId } from "../types"
 
 const secret = process.env.JWT_SECRET as string
-const EXPIRES_IN_MS = 60 * 60 * 24 * 7 * 1000 // Expires in 7 days in miliseconds (matches cookie's maxAge)
+const EXPIRES_IN_MS = 1000 * 60 * 60 * 24 * 7 // Expires in 7 days in miliseconds (matches cookie's maxAge)
 
 export const signToken = async (
 	payload: AppJWTPayload,
@@ -34,14 +34,14 @@ export const generateJWTForSession = async (
 	//
 	// 1. Create payload
 	//
-	const now = Math.floor(Date.now()) // now in miliseconds
+	const now = Date.now() // now in miliseconds
 	const exp = now + EXPIRES_IN_MS // Expires in 7 days in miliseconds (matches cookie's expires)
 	const jwtPayload: AppJWTPayload = {
 		user: payload,
 		// following 3 fields are needed for hono/jwt
-		iat: now / 1000, // (in seconds) Issued at time
-		nbf: now / 1000, // (in seconds) Not valid before time
-		exp: exp / 1000 // (in seconds) expires in 7 days
+		iat: Math.floor(now / 1000), // (in seconds) Issued at time
+		nbf: Math.floor(now / 1000), // (in seconds) Not valid before time
+		exp: Math.floor(exp / 1000) // (in seconds) expires in 7 days
 	}
 
 	//

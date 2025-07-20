@@ -16,9 +16,9 @@ export const setSessionTokenCookie = (c: Context, token: string, expires: Date) 
 	// using the hono api to set cookies
 	setCookie(c, SESSION_COOKIE_NAME, token, {
 		httpOnly: true,
-		sameSite: "Strict",
+		sameSite: "Lax",
 		secure: process.env.NODE_ENV === "production",
-		expires: expires,
+		expires: new Date(expires),
 		path: "/"
 	})
 }
@@ -36,8 +36,6 @@ export const deleteSessionTokenCookie = (c: Context) => {
 export const getServerSession = async (req?: Request): GetServerSessionReturnType => {
 	const cookie = req?.headers.get("cookie")?.match(/session-token=([^;]+)/)
 
-	console.log("\nTESTING HEADERS\n", { cookie })
-
 	if (!cookie) {
 		return {
 			isAuthenticated: false,
@@ -64,32 +62,34 @@ export const getServerSession = async (req?: Request): GetServerSessionReturnTyp
 	}
 }
 
-export const getServerSessionCache = cache(async (): GetServerSessionReturnType => {
-	const headersList = await headers()
+export const getServerSessionCache = cache(
+	async (req?: Request): GetServerSessionReturnType => {
+		const headersList = req ? req.headers : await headers()
 
-	const cookie = headersList.get("cookie")?.match(/session-token=([^;]+)/)
+		const cookie = headersList.get("cookie")?.match(/session-token=([^;]+)/)
 
-	if (!cookie) {
+		if (!cookie) {
+			return {
+				isAuthenticated: false,
+				getUser: null,
+				getAcessToken: null
+			}
+		}
+
+		const jwt = cookie[1]
+		const { error, decodedToken } = await verifyToken(jwt)
+
+		if (error) {
+			return {
+				isAuthenticated: false,
+				getUser: null,
+				getAcessToken: null
+			}
+		}
 		return {
-			isAuthenticated: false,
-			getUser: null,
-			getAcessToken: null
+			isAuthenticated: true,
+			getUser: () => decodedToken.user,
+			getAcessToken: () => decodedToken
 		}
 	}
-
-	const jwt = cookie[1]
-	const { error, decodedToken } = await verifyToken(jwt)
-
-	if (error) {
-		return {
-			isAuthenticated: false,
-			getUser: null,
-			getAcessToken: null
-		}
-	}
-	return {
-		isAuthenticated: true,
-		getUser: () => decodedToken.user,
-		getAcessToken: () => decodedToken
-	}
-})
+)
