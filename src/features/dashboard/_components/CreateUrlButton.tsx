@@ -69,7 +69,11 @@ export function CreateUrlButton() {
 
 	return (
 		<>
-			<Button className="px-3.5" icon={<FeatherPlus />} onClick={() => setIsOpen(true)}>
+			<Button
+				className="pr-3.5 pl-3"
+				icon={<FeatherPlus />}
+				onClick={() => setIsOpen(true)}
+			>
 				Create URL
 			</Button>
 

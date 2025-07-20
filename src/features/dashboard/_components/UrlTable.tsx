@@ -58,7 +58,12 @@ export function UrlTable({ urls }: Props) {
 							</span>
 						</Table.Cell>
 						<Table.Cell>
-							<Badge variant="success">{url.visibility.toUpperCase()}</Badge>
+							<Badge
+								className="capitalize"
+								variant={url.visibility === "public" ? "success" : "warning"}
+							>
+								{url.visibility}
+							</Badge>
 						</Table.Cell>
 						<Table.Cell>
 							<div className="flex shrink-0 grow basis-0 items-center justify-end">
