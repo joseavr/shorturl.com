@@ -14,8 +14,8 @@ export function ProfileDropdown({ user }: { user: any }) {
 
 	const handleLogout = useCallback(async () => {
 		await fetch("/api/auth/logout", { method: "POST" })
-		router.push("/")
 		router.refresh()
+		router.push("/")
 	}, [router])
 
 	// Close dropdown on outside click
