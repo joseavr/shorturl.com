@@ -2,6 +2,6 @@
 "use server"
 import { revalidatePath } from "next/cache"
 
-export async function revalidateAction(_state?: undefined | void, _formData?: FormData) {
-	revalidatePath("/dashboard")
+export async function revalidateAction(path: string) {
+	revalidatePath(path)
 }
