@@ -1,6 +1,8 @@
 import "server-only"
 import type { Context } from "hono"
 import { deleteCookie, getCookie, setCookie } from "hono/cookie"
+import { headers } from "next/headers"
+import { cache } from "react"
 import type { GetServerSessionReturnType } from "../types"
 import { verifyToken } from "./jwt"
 
@@ -31,8 +33,42 @@ export const deleteSessionTokenCookie = (c: Context) => {
 	})
 }
 
-export const getServerSession = async (req: Request): GetServerSessionReturnType => {
-	const cookie = req.headers.get("cookie")?.match(/session-token=([^;]+)/)
+export const getServerSession = async (req?: Request): GetServerSessionReturnType => {
+	const cookie = req?.headers.get("cookie")?.match(/session-token=([^;]+)/)
+
+	console.log("\nTESTING HEADERS\n", { cookie })
+
+	if (!cookie) {
+		return {
+			isAuthenticated: false,
+			getUser: null,
+			getAcessToken: null
+		}
+	}
+
+	const jwt = cookie[1]
+	const { error, decodedToken } = await verifyToken(jwt)
+
+	if (error) {
+		return {
+			isAuthenticated: false,
+			getUser: null,
+			getAcessToken: null
+		}
+	}
+
+	return {
+		isAuthenticated: true,
+		getUser: () => decodedToken.user,
+		getAcessToken: () => decodedToken
+	}
+}
+
+export const getServerSessionCache = cache(async (): GetServerSessionReturnType => {
+	const headersList = await headers()
+
+	const cookie = headersList.get("cookie")?.match(/session-token=([^;]+)/)
+
 	if (!cookie) {
 		return {
 			isAuthenticated: false,
@@ -56,4 +92,4 @@ export const getServerSession = async (req: Request): GetServerSessionReturnType
 		getUser: () => decodedToken.user,
 		getAcessToken: () => decodedToken
 	}
-}
+})

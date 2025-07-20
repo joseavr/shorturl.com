@@ -1,7 +1,6 @@
 import { showUrlTextFieldFlag } from "@/const"
 import { ScrollArea } from "@/ui/components/ScrollArea"
 import { getPublicUrls } from "../_services/get-public-urls"
-import { getUrlClickCount } from "../_services/get-url-click-count"
 import { SearchUrlTextField } from "./SearchUrlTextField"
 import UrlCard from "./UrlCard"
 
@@ -13,7 +12,7 @@ export async function RightPageLayout({
 	const { q = "" } = await searchParams
 	const query = Array.isArray(q) ? q[0] : q
 
-	const [urls, clickCount] = await Promise.all([getPublicUrls(), getUrlClickCount()])
+	const urls = await getPublicUrls()
 
 	const filteredUrls = query
 		? (urls ?? []).filter((url) => {
@@ -33,7 +32,7 @@ export async function RightPageLayout({
 
 			<ScrollArea className="h-screen w-full overflow-scroll">
 				{filteredUrls.map((url) => (
-					<UrlCard key={url.id} {...url} clickCount={clickCount} />
+					<UrlCard key={url.id} {...url} />
 				))}
 			</ScrollArea>
 		</div>
