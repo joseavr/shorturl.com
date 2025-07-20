@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation"
 import { getOriginalUrl } from "./_services/get-origin-url"
+import { trackUrlClick } from "./_services/track-url-click"
 
 export default async function RedirectPage({
 	params
@@ -8,9 +9,12 @@ export default async function RedirectPage({
 }) {
 	// find the url by hashurl passed in the params
 	const { shorturl } = await params
-	const originalUrl = await getOriginalUrl(shorturl)
+	const urlData = await getOriginalUrl(shorturl)
 
-	if (!originalUrl) notFound()
+	if (!urlData) notFound()
 
-	redirect(originalUrl)
+	// Track the click
+	await trackUrlClick(urlData.id)
+
+	redirect(urlData.originalUrl)
 }

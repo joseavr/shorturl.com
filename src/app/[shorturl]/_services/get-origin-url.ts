@@ -5,5 +5,5 @@ export async function getOriginalUrl(shortUrl: string) {
 		where: (fields, operators) => operators.eq(fields.shortUrl, shortUrl)
 	})
 
-	return url?.originalUrl ? url.originalUrl : null
+	return url ? { originalUrl: url.originalUrl, id: url.id } : null
 }
