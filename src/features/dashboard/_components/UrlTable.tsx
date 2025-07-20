@@ -71,7 +71,7 @@ export function UrlTable({ urls }: Props) {
 									<SubframeCore.DropdownMenu.Trigger asChild={true}>
 										<IconButton
 											icon={<FeatherMoreHorizontal />}
-											onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+											onClick={(_event: React.MouseEvent<HTMLButtonElement>) => {}}
 										/>
 									</SubframeCore.DropdownMenu.Trigger>
 									<SubframeCore.DropdownMenu.Portal>

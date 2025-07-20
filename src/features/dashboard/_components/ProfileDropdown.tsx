@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: I'll add types later */
 "use client"
 
 import { useRouter } from "next/navigation"

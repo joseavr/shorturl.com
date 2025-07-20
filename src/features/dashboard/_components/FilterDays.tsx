@@ -8,7 +8,7 @@ export function FilterDays() {
 		<Button
 			variant="neutral-tertiary"
 			iconRight={<FeatherChevronDown />}
-			onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+			onClick={(_event: React.MouseEvent<HTMLButtonElement>) => {}}
 		>
 			Last 30 days
 		</Button>
