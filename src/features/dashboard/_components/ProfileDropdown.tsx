@@ -1,18 +1,16 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: I'll add types later */
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useRef, useState, useTransition } from "react"
+import { useCallback, useTransition } from "react"
 import { isDev } from "@/const"
+import type { AuthUserWithId } from "@/features/auth/types"
 import { Avatar, DropdownMenu } from "@/ui"
+import { useClickOutside } from "../hooks/use-click-outside"
 
-// TODO types
-export function ProfileDropdown({ user }: { user: any }) {
+export function ProfileDropdown({ user }: { user: AuthUserWithId }) {
 	const router = useRouter()
 	const [isPending, startTransition] = useTransition()
-	const [open, setOpen] = useState(false)
-	const buttonRef = useRef<HTMLButtonElement>(null)
-	const menuRef = useRef<HTMLDivElement>(null)
+	const [menuRef, buttonRef, open, setOpen] = useClickOutside()
 
 	const handleLogout = useCallback(async () => {
 		const response = await fetch("/api/auth/logout", { method: "POST" })
@@ -20,35 +18,13 @@ export function ProfileDropdown({ user }: { user: any }) {
 		router.refresh()
 	}, [router])
 
-	// Close dropdown on outside click
-	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
-			if (
-				menuRef.current &&
-				!menuRef.current.contains(event.target as Node) &&
-				buttonRef.current &&
-				!buttonRef.current.contains(event.target as Node)
-			) {
-				setOpen(false)
-			}
-		}
-		if (open) {
-			document.addEventListener("mousedown", handleClickOutside)
-		} else {
-			document.removeEventListener("mousedown", handleClickOutside)
-		}
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside)
-		}
-	}, [open])
-
 	return (
 		<div className="relative">
 			<button
 				ref={buttonRef}
 				type="button"
 				className="focus:outline-none"
-				onClick={() => setOpen((v) => !v)}
+				onClick={() => setOpen((prev) => !prev)}
 				aria-haspopup="true"
 				aria-expanded={open}
 			>
