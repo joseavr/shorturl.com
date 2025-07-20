@@ -45,6 +45,7 @@ interface TextFieldRootProps extends React.LabelHTMLAttributes<HTMLLabelElement>
 	iconRight?: React.ReactNode
 	children?: React.ReactNode
 	className?: string
+	htmlFor?: string
 }
 
 const TextFieldRoot = React.forwardRef<HTMLElement, TextFieldRootProps>(
@@ -59,6 +60,7 @@ const TextFieldRoot = React.forwardRef<HTMLElement, TextFieldRootProps>(
 			iconRight = null,
 			children,
 			className,
+			htmlFor = "",
 			...otherProps
 		}: TextFieldRootProps,
 		ref
@@ -70,6 +72,7 @@ const TextFieldRoot = React.forwardRef<HTMLElement, TextFieldRootProps>(
 					className
 				)}
 				ref={ref as any}
+				htmlFor={htmlFor}
 				{...otherProps}
 			>
 				{label ? (

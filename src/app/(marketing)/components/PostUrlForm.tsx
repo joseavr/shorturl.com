@@ -1,7 +1,7 @@
 "use client"
 
 import { FeatherLink } from "@subframe/core"
-import { useActionState } from "react"
+import { useActionState, useId } from "react"
 import { Button, TextField, TextFieldInput } from "@/ui"
 import { createUrlAction } from "../_services/create-url"
 
@@ -14,7 +14,7 @@ const initialState = {
 // so we can validate input in client, not in server
 export function PostUrlForm() {
 	const [state, formAction, isLoading] = useActionState(createUrlAction, initialState)
-
+	const id = useId()
 	return (
 		<form
 			action={formAction}
@@ -26,8 +26,9 @@ export function PostUrlForm() {
 				error={!state.success}
 				helpText={!state.success ? state.message : undefined}
 				icon={<FeatherLink />}
+				htmlFor={id}
 			>
-				<TextFieldInput placeholder="Enter your URL here" name="url" />
+				<TextFieldInput id={id} placeholder="Enter your URL here" name="url" />
 			</TextField>
 			<Button
 				className="h-10 w-full flex-none"
