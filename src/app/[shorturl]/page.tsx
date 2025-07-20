@@ -1,4 +1,6 @@
 import { notFound, redirect } from "next/navigation"
+import { after } from "next/server"
+import { getMetaData } from "./_services/get-metadata"
 import { getOriginalUrl } from "./_services/get-origin-url"
 import { trackUrlClick } from "./_services/track-url-click"
 
@@ -13,8 +15,14 @@ export default async function RedirectPage({
 
 	if (!urlData) notFound()
 
+	// Get IP address and userAgent from headers
+	const { ipAddress, userAgent } = await getMetaData()
+
 	// Track the click
-	await trackUrlClick(urlData.id)
+	after(() => {
+		if (!urlData) return
+		trackUrlClick(urlData.id, ipAddress, userAgent)
+	})
 
 	redirect(urlData.originalUrl)
 }
