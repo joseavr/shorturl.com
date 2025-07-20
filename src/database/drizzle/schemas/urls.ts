@@ -58,10 +58,15 @@ export const urlClickTableRelations = relations(urlClickTable, ({ one }) => ({
  * Zod Validation schemas
  *
  ********************/
-export const SelectPublicUrlSchema = createSelectSchema(urlTable).omit({
-	ownerId: true,
-	visibility: true
-})
+export const SelectPublicUrlSchema = createSelectSchema(urlTable)
+	.omit({
+		ownerId: true,
+		visibility: true
+	})
+	.extend({
+		clicksCount: z.number()
+	})
+
 export const InsertPublicUrlSchema = createInsertSchema(urlTable, {
 	originalUrl: z.string().url("Invalid url.")
 })
@@ -78,6 +83,7 @@ export const InsertPublicUrlSchema = createInsertSchema(urlTable, {
 	})
 
 export const SelectUrlSchema = createSelectSchema(urlTable)
+export const SelectPrivateUrlSchema = SelectUrlSchema.extend({ clicksCount: z.number() })
 export const InsertUrlSchema = createInsertSchema(urlTable, {
 	originalUrl: z.string().url("Invalid url.")
 })

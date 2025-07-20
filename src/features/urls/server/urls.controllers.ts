@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { nanoid } from "nanoid"
 import { db } from "@/database"
 import { urlTable } from "@/database/drizzle/schemas"
@@ -18,10 +18,18 @@ import type {
 
 export const getAllPublic: AppRouteHandler<getAllPublicRoute> = async (c) => {
 	const urls = await db.query.urlTable.findMany({
-		where: eq(urlTable.visibility, "public")
+		where: eq(urlTable.visibility, "public"),
+		with: {
+			urlClicks: true
+		}
 	})
 
-	return c.json(onSuccessResponse(urls), HttpsCode.OK)
+	const urlsWithClicksCount = urls.map(({ urlClicks, ...url }) => ({
+		...url,
+		clicksCount: urlClicks.length
+	}))
+
+	return c.json(onSuccessResponse(urlsWithClicksCount), HttpsCode.OK)
 }
 
 export const getAllPrivate: AppRouteHandler<getAllPrivateRoute> = async (c) => {
@@ -37,13 +45,18 @@ export const getAllPrivate: AppRouteHandler<getAllPrivateRoute> = async (c) => {
 	const currentUser = getUser()
 
 	const urls = await db.query.urlTable.findMany({
-		where: and(
-			eq(urlTable.visibility, "private"),
-			eq(urlTable.ownerId, currentUser.userId)
-		)
+		where: eq(urlTable.ownerId, currentUser.userId),
+		with: {
+			urlClicks: true
+		}
 	})
 
-	return c.json(onSuccessResponse(urls), 200)
+	const urlsWithClicksCount = urls.map(({ urlClicks, ...url }) => ({
+		...url,
+		clicksCount: urlClicks.length
+	}))
+
+	return c.json(onSuccessResponse(urlsWithClicksCount), 200)
 }
 
 export const postPrivate: AppRouteHandler<postPrivateRoute> = async (c) => {

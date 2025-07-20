@@ -2,6 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi"
 import {
 	InsertPublicUrlSchema,
 	InsertUrlSchema,
+	SelectPrivateUrlSchema,
 	SelectPublicUrlSchema,
 	SelectUrlSchema,
 	UpdateUrlSchema,
@@ -39,7 +40,9 @@ export const getAllPrivate = createRoute({
 			description: "Get user URLs",
 			content: {
 				"application/json": {
-					schema: onSuccessResponseSchema(z.array(SelectUrlSchema))
+					schema: onSuccessResponseSchema(
+						z.array(SelectPrivateUrlSchema)
+					)
 				}
 			}
 		},
@@ -110,7 +113,9 @@ export const postPublic = createRoute({
 			description: "The created URL",
 			content: {
 				"application/json": {
-					schema: onSuccessResponseSchema(SelectPublicUrlSchema)
+					schema: onSuccessResponseSchema(
+						SelectPublicUrlSchema.omit({ clicksCount: true })
+					)
 				}
 			}
 		},
