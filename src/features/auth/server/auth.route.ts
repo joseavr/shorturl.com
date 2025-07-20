@@ -1,6 +1,5 @@
 import { Hono } from "hono"
 import { setCookie } from "hono/cookie"
-import { redirect } from "next/navigation"
 import { appUrl, isDev } from "@/const"
 import {
 	deleteSessionTokenCookie,
@@ -57,7 +56,7 @@ authRoute.get("/google/callback", async (c) => {
 		setSessionTokenCookie(c, jwt, expires)
 
 		isDev && console.log({ message: "Login successful", user })
-		return redirect(`${appUrl}/dashboard`)
+		return c.redirect(`${appUrl}/dashboard`)
 	} catch (error) {
 		return handleError(error, c)
 	}
