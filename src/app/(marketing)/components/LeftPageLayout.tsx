@@ -38,7 +38,7 @@ export function LeftPageLayout() {
 						variant="brand-secondary"
 						size="large"
 					>
-						<Link href="/login">
+						<Link href="/api/auth/google">
 							Create an account with{" "}
 							<IconWrapper>
 								<GoogleIcon />

@@ -1,0 +1,74 @@
+"use client"
+
+import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useRef, useState, useTransition } from "react"
+import { Avatar, DropdownMenu } from "@/ui"
+
+// TODO types
+export function ProfileDropdown({ user }: { user: any }) {
+	const router = useRouter()
+	const [isPending, startTransition] = useTransition()
+	const [open, setOpen] = useState(false)
+	const buttonRef = useRef<HTMLButtonElement>(null)
+	const menuRef = useRef<HTMLDivElement>(null)
+
+	const handleLogout = useCallback(async () => {
+		await fetch("/api/auth/logout", { method: "POST" })
+		router.push("/")
+		router.refresh()
+	}, [router])
+
+	// Close dropdown on outside click
+	useEffect(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (
+				menuRef.current &&
+				!menuRef.current.contains(event.target as Node) &&
+				buttonRef.current &&
+				!buttonRef.current.contains(event.target as Node)
+			) {
+				setOpen(false)
+			}
+		}
+		if (open) {
+			document.addEventListener("mousedown", handleClickOutside)
+		} else {
+			document.removeEventListener("mousedown", handleClickOutside)
+		}
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside)
+		}
+	}, [open])
+
+	return (
+		<div className="relative">
+			<button
+				ref={buttonRef}
+				type="button"
+				className="focus:outline-none"
+				onClick={() => setOpen((v) => !v)}
+				aria-haspopup="true"
+				aria-expanded={open}
+			>
+				<Avatar image={user?.image} size="medium" />
+			</button>
+			{open && (
+				<div ref={menuRef} className="absolute right-0 z-50 mt-2">
+					<DropdownMenu>
+						<div className="min-w-[160px] p-2">
+							<div className="mb-2 truncate pl-4 font-semibold">{user?.name}</div>
+							<button
+								type="button"
+								className="w-full rounded px-4 py-2 text-left text-red-600 hover:bg-gray-100 disabled:opacity-50"
+								onClick={() => startTransition(handleLogout)}
+								disabled={isPending}
+							>
+								{isPending ? "Logging out..." : "Logout"}
+							</button>
+						</div>
+					</DropdownMenu>
+				</div>
+			)}
+		</div>
+	)
+}

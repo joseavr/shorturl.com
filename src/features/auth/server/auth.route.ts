@@ -1,5 +1,7 @@
 import { Hono } from "hono"
 import { setCookie } from "hono/cookie"
+import { redirect } from "next/navigation"
+import { appUrl, isDev } from "@/const"
 import {
 	deleteSessionTokenCookie,
 	getServerSession,
@@ -54,7 +56,8 @@ authRoute.get("/google/callback", async (c) => {
 		// Use `JWT Session Strategy` by storing the JWT in an HTTP-only cookie
 		setSessionTokenCookie(c, jwt, expires)
 
-		return c.json({ message: "Login successful", user }, 200)
+		isDev && console.log({ message: "Login successful", user })
+		return redirect(`${appUrl}/dashboard`)
 	} catch (error) {
 		return handleError(error, c)
 	}
