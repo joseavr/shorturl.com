@@ -4,7 +4,7 @@ import { FeatherEye, FeatherLink, FeatherPlus, FeatherX } from "@subframe/core"
 import { useId, useState } from "react"
 import { Alert, Button, Dialog, Select, TextField, TextFieldInput } from "@/ui"
 import { usePendingAction } from "@/utils/usePendingAction"
-import { revalidateAction } from "../actions/revalidate-action"
+import { revalidateAction } from "../actions/revalidate-path.action"
 
 interface CreateUrlFormData {
 	originalUrl: string

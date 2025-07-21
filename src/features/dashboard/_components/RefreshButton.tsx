@@ -4,7 +4,7 @@ import { FeatherRefreshCw } from "@subframe/core"
 import { cn } from "@/lib/utils"
 import { Button } from "@/ui"
 import { usePendingAction } from "@/utils/usePendingAction"
-import { revalidateAction } from "../actions/revalidate-action"
+import { revalidateAction } from "../actions/revalidate-path.action"
 
 export function RefreshButton() {
 	const [pending, handleRevalidate] = usePendingAction(revalidateAction)
