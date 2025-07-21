@@ -89,15 +89,15 @@ export function CreateUrlButton() {
 								label="Original URL"
 								placeholder="https://example.com"
 								icon={<FeatherLink />}
-								value={formData.originalUrl}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-									setFormData((prev) => ({ ...prev, originalUrl: e.target.value }))
-								}
 								required
 								htmlFor={inputId}
 								disabled={pending}
 							>
 								<TextFieldInput
+									value={formData.originalUrl}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setFormData((prev) => ({ ...prev, originalUrl: e.target.value }))
+									}
 									placeholder="Enter your URL here"
 									name="url"
 									id={inputId}
