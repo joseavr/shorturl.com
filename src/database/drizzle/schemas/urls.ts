@@ -45,7 +45,9 @@ export const urlClickTable = sqliteTable("url_clicks", {
 	}).default(sql`(unixepoch() * 1000)`),
 	ipAddress: text("ip_address"),
 	userAgent: text("user_agent"),
-	referrer: text("referrer")
+	referrer: text("referrer"),
+	deviceType: text("device_type"), // new
+	browser: text("browser") // new
 })
 export const urlClickTableRelations = relations(urlClickTable, ({ one }) => ({
 	url: one(urlTable, {

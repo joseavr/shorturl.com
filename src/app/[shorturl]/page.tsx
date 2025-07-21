@@ -15,13 +15,13 @@ export default async function RedirectPage({
 
 	if (!urlData) notFound()
 
-	// Get IP address, userAgent, and referrer from headers
-	const { ipAddress, userAgent, referrer } = await getMetaData()
+	// Get IP address, userAgent, referrer, deviceType, and browser from headers
+	const { ipAddress, userAgent, referrer, deviceType, browser } = await getMetaData()
 
 	// Track the click
 	after(() => {
 		if (!urlData) return
-		trackUrlClick(urlData.id, ipAddress, userAgent, referrer)
+		trackUrlClick(urlData.id, ipAddress, userAgent, referrer, deviceType, browser)
 	})
 
 	redirect(urlData.originalUrl)
