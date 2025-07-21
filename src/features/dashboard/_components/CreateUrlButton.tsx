@@ -1,8 +1,9 @@
 "use client"
 
-import { FeatherEye, FeatherLink, FeatherPlus, FeatherX } from "@subframe/core"
+import { FeatherEye, FeatherLink, FeatherPlus, FeatherX, toast } from "@subframe/core"
 import { useId, useState } from "react"
-import { Alert, Button, Dialog, Select, TextField, TextFieldInput } from "@/ui"
+import { isDev } from "@/const"
+import { Button, Dialog, Select, TextField, TextFieldInput } from "@/ui"
 import { usePendingAction } from "@/utils/usePendingAction"
 import { revalidateAction } from "../actions/revalidate-path.action"
 
@@ -18,17 +19,11 @@ export function CreateUrlButton() {
 		originalUrl: "",
 		visibility: "private"
 	})
-	const [isLoading, setIsLoading] = useState(false)
-	const [error, setError] = useState<string | null>(null)
-	const [success, setSuccess] = useState<string | null>(null)
 	const inputId = useId()
-	const [_pending, handleRevalidate] = usePendingAction(revalidateAction)
+	const [pending, handleRevalidate] = usePendingAction(revalidateAction)
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
-		setIsLoading(true)
-		setError(null)
-		setSuccess(null)
 
 		try {
 			const response = await fetch("/api/urls", {
@@ -41,30 +36,26 @@ export function CreateUrlButton() {
 
 			if (!response.ok) {
 				const errorData = (await response.json()) as { message?: string }
-				throw new Error(errorData.message || "Failed to create URL")
+				toast.error(`Failed to create URL: ${errorData}`)
 			}
 
 			await response.json()
-			setSuccess("URL created successfully!")
 			setFormData({ originalUrl: "", visibility: "private" })
 
 			// Close modal after a short delay
 			setTimeout(() => {
 				setIsOpen(false)
-				setSuccess(null)
-				setIsLoading(false)
 				handleRevalidate("/dashboard")
 			}, 1500)
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "An unexpected error occurred")
+			toast.error(`An unexpected error occurred`)
+			isDev && console.log(err instanceof Error ? err.message : "")
 		}
 	}
 
 	const handleClose = () => {
 		setIsOpen(false)
 		setFormData({ originalUrl: "", visibility: "private" })
-		setError(null)
-		setSuccess(null)
 	}
 
 	return (
@@ -92,14 +83,6 @@ export function CreateUrlButton() {
 							/>
 						</div>
 
-						{/* Success Message */}
-						{success && (
-							<Alert variant="success" title="Success!" description={success} />
-						)}
-
-						{/* Error Message */}
-						{error && <Alert variant="error" title="Error" description={error} />}
-
 						{/* Form */}
 						<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 							<TextField
@@ -111,16 +94,14 @@ export function CreateUrlButton() {
 									setFormData((prev) => ({ ...prev, originalUrl: e.target.value }))
 								}
 								required
-								error={error?.includes("url")}
-								helpText={error?.includes("url") ? "Please enter a valid URL" : undefined}
 								htmlFor={inputId}
-								disabled={isLoading}
+								disabled={pending}
 							>
 								<TextFieldInput
 									placeholder="Enter your URL here"
 									name="url"
 									id={inputId}
-									disabled={isLoading}
+									disabled={pending}
 								/>
 							</TextField>
 
@@ -136,7 +117,7 @@ export function CreateUrlButton() {
 									}))
 								}
 								required
-								disabled={isLoading}
+								disabled={pending}
 							>
 								<Select.Item value="private">
 									Private - Only you can see this URL
@@ -151,13 +132,13 @@ export function CreateUrlButton() {
 									variant="neutral-secondary"
 									onClick={handleClose}
 									className="flex-1"
-									disabled={isLoading}
+									disabled={pending}
 								>
 									Cancel
 								</Button>
 								<Button
 									type="submit"
-									loading={isLoading}
+									loading={pending}
 									className="flex-1"
 									disabled={!formData.originalUrl.trim()}
 								>

@@ -44,7 +44,8 @@ export const urlClickTable = sqliteTable("url_clicks", {
 		mode: "timestamp_ms"
 	}).default(sql`(unixepoch() * 1000)`),
 	ipAddress: text("ip_address"),
-	userAgent: text("user_agent")
+	userAgent: text("user_agent"),
+	referrer: text("referrer")
 })
 export const urlClickTableRelations = relations(urlClickTable, ({ one }) => ({
 	url: one(urlTable, {
@@ -58,6 +59,10 @@ export const urlClickTableRelations = relations(urlClickTable, ({ one }) => ({
  * Zod Validation schemas
  *
  ********************/
+
+//
+// Public
+//
 export const SelectPublicUrlSchema = createSelectSchema(urlTable)
 	.omit({
 		ownerId: true,
@@ -82,6 +87,9 @@ export const InsertPublicUrlSchema = createInsertSchema(urlTable, {
 		originalUrl: true
 	})
 
+//
+// Private
+//
 export const SelectUrlSchema = createSelectSchema(urlTable)
 export const SelectPrivateUrlSchema = SelectUrlSchema.extend({ clicksCount: z.number() })
 export const InsertUrlSchema = createInsertSchema(urlTable, {
@@ -101,7 +109,6 @@ export const InsertUrlSchema = createInsertSchema(urlTable, {
 export const UpdateUrlSchema = createUpdateSchema(urlTable).omit({
 	id: true,
 	createdAt: true,
-	updatedAt: true,
 	ownerId: true,
 	shortUrl: true
 })
