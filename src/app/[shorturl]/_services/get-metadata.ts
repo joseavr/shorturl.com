@@ -12,8 +12,12 @@ export async function getMetaData() {
 	// Get user agent from headers
 	const userAgent = headersList.get("user-agent") || "unknown"
 
+	// Get referrer from headers
+	const referrer = headersList.get("referer") || headersList.get("referrer") || "unknown"
+
 	return {
 		ipAddress,
-		userAgent
+		userAgent,
+		referrer
 	}
 }
