@@ -23,7 +23,7 @@ export function ProfileDropdown({ user }: { user: AuthUserWithId }) {
 			<button
 				ref={buttonRef}
 				type="button"
-				className="group focus:outline-none"
+				className="group cursor-pointer focus:outline-none"
 				onClick={() => setOpen((prev) => !prev)}
 				aria-haspopup="true"
 				aria-expanded={open}
@@ -31,7 +31,7 @@ export function ProfileDropdown({ user }: { user: AuthUserWithId }) {
 				<Avatar
 					image={user?.image}
 					size="medium"
-					className="ring-brand-200 transition-all duration-300 group-hover:ring-3"
+					className="ring-brand-300 transition-all duration-300 group-hover:ring-3"
 				/>
 			</button>
 			{open && (
