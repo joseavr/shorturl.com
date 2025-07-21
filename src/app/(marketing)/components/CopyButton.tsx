@@ -4,14 +4,22 @@ import { FeatherCheckCheck, FeatherCopy } from "@subframe/core"
 import { useState } from "react"
 import { IconButton } from "@/ui"
 
-export function CopyButton({ shortUrl }: { shortUrl: string }) {
+export function CopyButton({
+	shortUrl,
+	icon = <FeatherCopy />,
+	onCopyIcon = <FeatherCheckCheck />
+}: {
+	shortUrl: string
+	icon?: React.ReactNode
+	onCopyIcon?: React.ReactNode
+}) {
 	const { isCopied, handleCopy } = useClipboard(shortUrl)
 
-	const Icon = isCopied ? FeatherCheckCheck : FeatherCopy
+	const IconNode = isCopied ? onCopyIcon : icon
 
 	return (
 		<IconButton
-			icon={<Icon />}
+			icon={IconNode}
 			variant={isCopied ? "brand-tertiary" : undefined}
 			onClick={handleCopy}
 		/>
