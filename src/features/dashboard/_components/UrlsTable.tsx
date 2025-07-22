@@ -43,7 +43,7 @@ interface Props {
 }
 
 // TODO use hookform with zod
-export function UrlTable({ urls }: Props) {
+export function UrlsTable({ urls }: Props) {
 	const pathname = usePathname()
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 	const [pending, handleDeleteUrl] = usePendingAction(deleteUrlAction)

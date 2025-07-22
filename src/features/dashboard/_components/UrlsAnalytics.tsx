@@ -5,7 +5,7 @@ import { getPrivateUrlsCache } from "@/features/urls/data-access/get-urls"
 import { Badge } from "@/ui"
 import { calculateAvgClickRateGrowth } from "../utils/click-rate-compare-to-last-week"
 
-export async function UrlAnalytics() {
+export async function UrlsAnalytic() {
 	const urls = await getPrivateUrlsCache()
 
 	const totalUrls = urls.length
