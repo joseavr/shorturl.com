@@ -15,8 +15,6 @@ export function getTopByCategory<
 	})
 
 	const topCategory = categoryBreakdown.sort((a, b) => b.count - a.count).slice(0, 3)
-
 	const categoryMax = Math.max(...categoryBreakdown.map((d) => d.count), 1)
-
 	return [topCategory, categoryMax]
 }
