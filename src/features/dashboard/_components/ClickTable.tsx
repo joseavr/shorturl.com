@@ -1,8 +1,18 @@
 "use client"
 
+import { format } from "date-fns"
 import { Badge, Table } from "@/ui"
 
-export function ClickTable() {
+export interface Click {
+	id?: string | number
+	clickedAt?: Date
+	location?: string | null
+	deviceType?: string | null
+	browser?: string | null
+	referrer?: string | null
+}
+
+export function ClickTable({ clicks = [] }: { clicks: Click[] }) {
 	return (
 		<Table
 			header={
@@ -15,81 +25,45 @@ export function ClickTable() {
 				</Table.HeaderRow>
 			}
 		>
-			<Table.Row>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						2024-03-15 14:23
-					</span>
-				</Table.Cell>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						New York, US
-					</span>
-				</Table.Cell>
-				<Table.Cell>
-					<Badge variant="neutral">Mobile</Badge>
-				</Table.Cell>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						Chrome
-					</span>
-				</Table.Cell>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						twitter.com
-					</span>
-				</Table.Cell>
-			</Table.Row>
-			<Table.Row>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						2024-03-15 14:20
-					</span>
-				</Table.Cell>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						London, UK
-					</span>
-				</Table.Cell>
-				<Table.Cell>
-					<Badge variant="neutral">Desktop</Badge>
-				</Table.Cell>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						Safari
-					</span>
-				</Table.Cell>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						linkedin.com
-					</span>
-				</Table.Cell>
-			</Table.Row>
-			<Table.Row>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						2024-03-15 14:18
-					</span>
-				</Table.Cell>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						Berlin, DE
-					</span>
-				</Table.Cell>
-				<Table.Cell>
-					<Badge variant="neutral">Tablet</Badge>
-				</Table.Cell>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						Firefox
-					</span>
-				</Table.Cell>
-				<Table.Cell>
-					<span className="whitespace-nowrap font-body text-body text-neutral-500">
-						google.com
-					</span>
-				</Table.Cell>
-			</Table.Row>
+			{clicks.length === 0 ? (
+				<Table.Row>
+					<Table.Cell colSpan={5}>
+						<span className="font-body text-body text-neutral-500">No clicks yet.</span>
+					</Table.Cell>
+				</Table.Row>
+			) : (
+				clicks.map((click, idx) => (
+					<Table.Row key={click.id ?? idx}>
+						<Table.Cell>
+							<span className="whitespace-nowrap font-body text-body text-neutral-500">
+								{click.clickedAt
+									? format(new Date(click.clickedAt), "yyyy-MM-dd HH:mm")
+									: "-"}
+							</span>
+						</Table.Cell>
+						<Table.Cell>
+							<span className="whitespace-nowrap font-body text-body text-neutral-500">
+								{click.location?.startsWith("unknown")
+									? "unknown"
+									: click.location || "unknown"}
+							</span>
+						</Table.Cell>
+						<Table.Cell>
+							<Badge variant="neutral">{click.deviceType || "Unknown"}</Badge>
+						</Table.Cell>
+						<Table.Cell>
+							<span className="whitespace-nowrap font-body text-body text-neutral-500">
+								{click.browser || "Unknown"}
+							</span>
+						</Table.Cell>
+						<Table.Cell>
+							<span className="whitespace-nowrap font-body text-body text-neutral-500">
+								{click.referrer || "Direct"}
+							</span>
+						</Table.Cell>
+					</Table.Row>
+				))
+			)}
 		</Table>
 	)
 }
