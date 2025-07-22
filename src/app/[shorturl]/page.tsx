@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation"
 import { after } from "next/server"
+import { capitalize } from "@/utils/capitalize"
 import { getMetaData } from "./_services/get-metadata"
 import { getOriginalUrl } from "./_services/get-origin-url"
 import { trackUrlClick } from "./_services/track-url-click"
@@ -15,13 +16,22 @@ export default async function RedirectPage({
 
 	if (!urlData) notFound()
 
-	// Get IP address, userAgent, referrer, deviceType, and browser from headers
-	const { ipAddress, userAgent, referrer, deviceType, browser } = await getMetaData()
+	const { ipAddress, userAgent, referrer, deviceType, browser, geo } = await getMetaData()
+
+	const location = `${capitalize(geo.city) || "unknown"}, ${capitalize(geo.countryRegion) || "unknown"} `
 
 	// Track the click
 	after(() => {
 		if (!urlData) return
-		trackUrlClick(urlData.id, ipAddress, userAgent, referrer, deviceType, browser)
+		trackUrlClick(
+			urlData.id,
+			ipAddress,
+			userAgent,
+			referrer,
+			deviceType,
+			browser,
+			location
+		)
 	})
 
 	redirect(urlData.originalUrl)

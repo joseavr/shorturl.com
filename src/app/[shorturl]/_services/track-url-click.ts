@@ -7,7 +7,8 @@ export async function trackUrlClick(
 	userAgent: string,
 	referrer: string,
 	deviceType: string,
-	browser: string
+	browser: string,
+	location: string
 ) {
 	// Insert click record
 	await db.insert(urlClickTable).values({
@@ -16,6 +17,7 @@ export async function trackUrlClick(
 		userAgent,
 		referrer,
 		deviceType,
-		browser
+		browser,
+		location
 	})
 }

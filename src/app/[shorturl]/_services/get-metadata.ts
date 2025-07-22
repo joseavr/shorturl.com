@@ -1,5 +1,5 @@
 import { headers } from "next/headers"
-import { geoHeaderName, ipHeaderName } from "@/const"
+import { X_GEO_HEADER, X_IP_HEADER, X_REFERRER_HEADER } from "@/const"
 
 type GeoHeaderT = {
 	city?: string
@@ -17,19 +17,11 @@ export async function getMetaData() {
 	// Get user agent from headers
 	// note: we must store custom in headers because in next.js
 	// 			 cannot acccess the request object in page.tsx's
-	const userAgent = headersList.get("user-agent") || "unknown"
-
-	const userBrowser = headersList.get("sec-ch-ua") || "unknown"
-
-	const ipAddress =
-		headersList.get(ipHeaderName) === "::1"
-			? "localhost"
-			: headersList.get(ipHeaderName) || "unknown"
-
-	const geo: GeoHeaderT = JSON.parse(headersList.get(geoHeaderName) || "")
-
-	// Get referrer from headers
-	const referrer = headersList.get("referer") || headersList.get("referrer") || "unknown"
+	const userAgent = headersList.get("user-agent") || "undefined"
+	const userBrowser = headersList.get("sec-ch-ua") || "undefined"
+	const ipAddress = headersList.get(X_IP_HEADER) || "undefined"
+	const geo: GeoHeaderT = JSON.parse(headersList.get(X_GEO_HEADER) || "{}")
+	const referrer = headersList.get(X_REFERRER_HEADER) || "undefined"
 
 	const { deviceType, browser } = parseDeviceAndBrowser(userAgent + userBrowser)
 
