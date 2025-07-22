@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: It is fine to have any */
 export function getTopByCategory<
 	T extends Record<string, any>,
 	C extends keyof T & string
