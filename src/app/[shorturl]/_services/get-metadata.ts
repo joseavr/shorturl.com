@@ -1,28 +1,45 @@
 import { headers } from "next/headers"
+import { geoHeaderName, ipHeaderName } from "@/const"
 
+type GeoHeaderT = {
+	city?: string
+	country?: string
+	flag?: string
+	region?: string
+	countryRegion?: string
+	latitude?: string
+	longitude?: string
+	postalCode?: string
+}
 export async function getMetaData() {
 	const headersList = await headers()
-	const forwarded = headersList.get("x-forwarded-for")
-	const realIp = headersList.get("x-real-ip")
-	const ipAddress =
-		forwarded?.split(",")[0] === "::1"
-			? "localhost"
-			: forwarded?.split(",")[0] || realIp || "unknown"
 
 	// Get user agent from headers
+	// note: we must store custom in headers because in next.js
+	// 			 cannot acccess the request object in page.tsx's
 	const userAgent = headersList.get("user-agent") || "unknown"
+
+	const userBrowser = headersList.get("sec-ch-ua") || "unknown"
+
+	const ipAddress =
+		headersList.get(ipHeaderName) === "::1"
+			? "localhost"
+			: headersList.get(ipHeaderName) || "unknown"
+
+	const geo: GeoHeaderT = JSON.parse(headersList.get(geoHeaderName) || "")
 
 	// Get referrer from headers
 	const referrer = headersList.get("referer") || headersList.get("referrer") || "unknown"
 
-	const { deviceType, browser } = parseDeviceAndBrowser(userAgent)
+	const { deviceType, browser } = parseDeviceAndBrowser(userAgent + userBrowser)
 
 	return {
 		ipAddress,
 		userAgent,
 		referrer,
 		deviceType,
-		browser
+		browser,
+		geo
 	}
 }
 
@@ -33,7 +50,8 @@ function parseDeviceAndBrowser(userAgent: string) {
 	else if (/tablet|ipad|android/i.test(userAgent)) deviceType = "tablet"
 
 	let browser = "unknown"
-	if (/chrome|crios/i.test(userAgent)) browser = "chrome"
+	if (/brave/i.test(userAgent)) browser = "brave"
+	else if (/chrome|crios/i.test(userAgent)) browser = "chrome"
 	else if (/firefox|fxios/i.test(userAgent)) browser = "firefox"
 	else if (/safari/i.test(userAgent) && !/chrome|crios/i.test(userAgent))
 		browser = "safari"
