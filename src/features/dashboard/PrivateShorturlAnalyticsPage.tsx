@@ -4,7 +4,7 @@ import {
 	FeatherCalendar,
 	FeatherExternalLink
 } from "@subframe/core"
-import { endOfWeek, getDay, isWithinInterval, startOfWeek, subWeeks } from "date-fns"
+import { getDay } from "date-fns"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { CopyButton } from "@/app/(marketing)/components/CopyButton"
@@ -29,23 +29,14 @@ import { ProfileDropdown } from "./_components/ProfileDropdown"
 import { RefreshButton } from "./_components/RefreshButton"
 import { getUrlById } from "./services/get-url-by-id"
 import { getTopByCategory } from "./utils/get-top-category"
+import {
+	getClicksFromWeekRange,
+	getLastWeekRange,
+	getPreviousWeekRange
+} from "./utils/week-range"
 
 interface Props {
 	shortUrlId: string
-}
-
-function getLastWeekRange() {
-	const now = new Date()
-	const start = startOfWeek(now, { weekStartsOn: 1 }) // Monday
-	const end = endOfWeek(now, { weekStartsOn: 1 }) // Sunday
-	return { start, end }
-}
-
-function getPreviousWeekRange() {
-	const now = new Date()
-	const start = startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 })
-	const end = endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 })
-	return { start, end }
 }
 
 export default async function PrivateShorturlAnalyticsPage({ shortUrlId }: Props) {
@@ -71,16 +62,8 @@ export default async function PrivateShorturlAnalyticsPage({ shortUrlId }: Props
 
 	// Filter clicks for last week and previous week
 	const clicks = url.urlClicks || []
-	const clicksLastWeek = clicks.filter(
-		(c) =>
-			c.clickedAt &&
-			isWithinInterval(new Date(c.clickedAt), { start: weekStart, end: weekEnd })
-	)
-	const clicksPrevWeek = clicks.filter(
-		(c) =>
-			c.clickedAt &&
-			isWithinInterval(new Date(c.clickedAt), { start: prevWeekStart, end: prevWeekEnd })
-	)
+	const clicksLastWeek = getClicksFromWeekRange(clicks, weekStart, weekEnd)
+	const clicksPrevWeek = getClicksFromWeekRange(clicks, prevWeekStart, prevWeekEnd)
 
 	// --- Total Clicks ---
 	const totalClicks = clicks.length
@@ -109,7 +92,8 @@ export default async function PrivateShorturlAnalyticsPage({ shortUrlId }: Props
 	// --- Top Locations ---
 	const [topLocations] = getTopByCategory(clicks, "location")
 
-	// --- AreaChart Data (Top 3 Referrers, Clicks per Day for Last Week) ---
+	// TODO generateChartData(), filterXAxis='years'|'months'|'thisweek' and bycategory from queryParams,
+	// --- AreaChart Data (Top 3 Locations, Clicks per Day for Last Week) ---
 	const daysOfWeek = [
 		"Monday",
 		"Tuesday",
@@ -131,7 +115,7 @@ export default async function PrivateShorturlAnalyticsPage({ shortUrlId }: Props
 		const location = c.location || "undefined"
 		if (!topLocationsForChart.includes(location)) continue
 		const dayIdx = getDay(new Date(c.clickedAt))
-		const dayName = daysOfWeek[dayIdx === 0 ? 6 : dayIdx - 1] // shift so 1=Monday, 0=Sunday->6
+		const dayName = daysOfWeek[dayIdx === 0 ? 6 : dayIdx - 1] // shift so 1=Monday->0, 0=Sunday->6
 		const entry = chartData.find((e) => e.Day === dayName)
 		if (entry) entry[location] += 1
 	}
