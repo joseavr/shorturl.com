@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next"
 import type { Metadata } from "next"
 import { Inter, Outfit } from "next/font/google"
 import "./globals.css"
@@ -37,6 +38,7 @@ export default function RootLayout({
 					position="top-center"
 					visibleToasts={3}
 				/>
+				<Analytics debug />
 			</body>
 		</html>
 	)

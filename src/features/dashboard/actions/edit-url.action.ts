@@ -44,8 +44,6 @@ export async function editUrlAction({
 		// otherwise update url + shortUrl
 		const newShortUrl = nanoid(8)
 
-		console.log({ newShortUrl })
-
 		await db
 			.update(urlTable)
 			.set({
