@@ -4,8 +4,8 @@ import { CreateUrlButton } from "@/features/dashboard/_components/CreateUrlButto
 import { FilterDays } from "@/features/dashboard/_components/FilterDays"
 import { RefreshButton } from "@/features/dashboard/_components/RefreshButton"
 import Search from "@/features/dashboard/_components/Search"
-import { UrlAnalytics } from "@/features/dashboard/_components/UrlAnalytics"
-import { UrlTable } from "@/features/dashboard/_components/UrlTable"
+import { UrlsAnalytic } from "@/features/dashboard/_components/UrlsAnalytics"
+import { UrlsTable } from "@/features/dashboard/_components/UrlsTable"
 import { Breadcrumbs, BreadcrumbsDivider, BreadcrumbsItem } from "@/ui"
 import { DefaultPageLayout } from "@/ui/layouts/DefaultPageLayout"
 import { getServerSessionCache } from "../auth/lib/session"
@@ -50,7 +50,7 @@ export async function PrivateDashboardPage() {
 					</div>
 				</div>
 
-				<UrlAnalytics />
+				<UrlsAnalytic />
 
 				<div className="flex w-full flex-col items-start gap-6">
 					<div className="flex w-full flex-wrap items-center gap-4">
@@ -67,7 +67,7 @@ export async function PrivateDashboardPage() {
 						</div>
 					</div>
 					<div className="flex w-full flex-col items-start gap-2 overflow-auto rounded-md border border-neutral-border border-solid bg-default-background shadow-sm">
-						<UrlTable urls={urls} />
+						<UrlsTable urls={urls} />
 					</div>
 				</div>
 			</div>
