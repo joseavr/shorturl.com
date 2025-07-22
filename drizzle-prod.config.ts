@@ -11,8 +11,8 @@ config({ path: ".env" })
 // i.e: drizzle-kit generate --config=drizzle-dev.config.ts
 export default defineConfig({
 	dialect: "turso",
-	schema: "./src/backend/database/drizzle/schemas",
-	out: "./src/backend/database/drizzle/migrations",
+	schema: "./src/database/drizzle/schemas",
+	out: "./src/database/drizzle/migrations",
 	dbCredentials: {
 		url: 
 			process.env.TURSO_DATABASE_URL as string,
