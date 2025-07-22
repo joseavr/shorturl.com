@@ -42,7 +42,7 @@ export const urlClickTable = sqliteTable("url_clicks", {
 		.references(() => urlTable.id, { onDelete: "cascade" }),
 	clickedAt: integer("clicked_at", {
 		mode: "timestamp_ms"
-	}).default(sql`(unixepoch() * 1000)`),
+	}).notNull().default(sql`(unixepoch() * 1000)`),
 	ipAddress: text("ip_address"),
 	userAgent: text("user_agent"),
 	referrer: text("referrer"),
