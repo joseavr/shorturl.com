@@ -21,6 +21,8 @@ export default async function RedirectPage({
 
 	const location = `${geo.city || "unknown"}, ${geo.country || "unknown"} ${geo.flag || ""}`
 
+	console.log("\n\nBRUH:", location)
+
 	// Track the click
 	after(() => {
 		if (!urlData) return
