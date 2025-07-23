@@ -25,8 +25,6 @@ export async function middleware(request: NextRequest) {
 		/^\/([a-zA-Z0-9_-]{2,8})$/.test(pathname) && !pathname.startsWith("/dashboard")
 
 	if (isRedirectRoute) {
-		console.log("\n\nSHOULD RUN: ", geolocation(request))
-		console.log("\n\nREFERRER POLICY: ", request.referrerPolicy)
 		const response = NextResponse.next()
 		const ip = request.headers.get("x-forwarded-for")
 		const geo = geolocation(request)
