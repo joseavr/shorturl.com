@@ -24,7 +24,7 @@ const AreaChartRoot = React.forwardRef<HTMLElement, AreaChartRootProps>(
 				className={SubframeUtils.twClassNames("h-80 w-full", className)}
 				ref={ref as any}
 				stacked={stacked}
-				colors={["#22c55e", "#86efac", "#14b8a6", "#65a30d", "#cae926"]}
+				colors={["#22c55e", "#14b8a6", "#86efac", "#65a30d", "#cae926"]}
 				{...otherProps}
 			/>
 		)

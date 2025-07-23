@@ -17,7 +17,8 @@ export default async function RedirectPage({
 
 	const { ipAddress, userAgent, referrer, deviceType, browser, geo } = await getMetaData()
 
-	const location = `${geo.city || "unknown"}, ${geo.country || "unknown"} ${geo.flag || ""}`
+	const location =
+		geo.city || geo.country ? `${geo.city}, ${geo.country} ${geo.flag || ""}` : "unknown"
 
 	// Track the click
 	after(() => {
