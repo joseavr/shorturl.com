@@ -15,12 +15,6 @@ type GeoHeaderT = {
 export async function getMetaData() {
 	const headersList = await headers()
 
-	console.log("\n\nFROM REDIRECT PAGE:", Object.fromEntries(headersList.entries()))
-	console.log(
-		"\n\nX_GEO_HEADER_ENCODED:",
-		decodeHeaders(headersList.get(X_GEO_HEADER) || "{}")
-	)
-
 	// Get user agent from headers
 	// note: we must store custom in headers because in next.js
 	// 			 cannot acccess the request object in page.tsx's
