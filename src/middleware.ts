@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { X_GEO_HEADER, X_IP_HEADER, X_REFERRER_HEADER } from "@/const"
 import { getServerSession } from "@/features/auth/lib/session"
 import { isProtectedRoute } from "@/utils/protected-routes"
+import { encodeHeaders } from "./utils/buffer"
 
 export async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl
@@ -31,7 +32,7 @@ export async function middleware(request: NextRequest) {
 		const geo = geolocation(request)
 		const referrer = request.headers.get("referer") || "unknown"
 		response.headers.set(X_IP_HEADER, ip === "::1" ? "localhost" : ip || "unknown")
-		response.headers.set(X_GEO_HEADER, JSON.stringify(geo))
+		response.headers.set(X_GEO_HEADER, encodeHeaders(JSON.stringify(geo)))
 		response.headers.set(X_REFERRER_HEADER, referrer)
 		return response
 	}
