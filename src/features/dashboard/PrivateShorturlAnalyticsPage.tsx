@@ -25,7 +25,7 @@ import { ExportButton } from "./_components/ExportButton"
 import { FilterClickByDaysButton } from "./_components/FilterClickByDaysButton"
 import { ProfileDropdown } from "./_components/ProfileDropdown"
 import { RefreshButton } from "./_components/RefreshButton"
-import { ShorturlChart } from "./_components/shorturlChart"
+import { ShorturlChart } from "./_components/ShorturlChart"
 import { getUrlById } from "./services/get-url-by-id"
 import { getTopByCategory } from "./utils/get-top-category"
 import {
