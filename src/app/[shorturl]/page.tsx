@@ -17,13 +17,13 @@ export default async function RedirectPage({
 
 	const { ipAddress, userAgent, referrer, deviceType, browser, geo } = await getMetaData()
 
-	console.log("\n\nFROM REDIRECT PAGE:", geo)
-
 	const loc = `${geo.city || "unknown"}, ${geo.country || "unknown"} ${geo.flag || ""}`
 
-	console.log(Object.keys(geo))
-	console.log(Object(loc))
-	console.log(geo.city, geo.country, geo.flag)
+	console.log("\n\nFROM REDIRECT PAGE:", geo)
+	console.log("typeof geo:", typeof geo)
+	console.log("geo instanceof Array:", Array.isArray(geo))
+	console.log("geo instanceof Buffer:", geo instanceof Buffer)
+	console.log("geo:", geo)
 	console.log(loc)
 
 	// Track the click
