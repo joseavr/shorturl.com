@@ -21,7 +21,7 @@ export async function getMetaData() {
 	const userAgent = headersList.get("user-agent") || "undefined"
 	const userBrowser = headersList.get("sec-ch-ua") || "undefined"
 	const ipAddress = headersList.get(X_IP_HEADER) || "undefined"
-	const geo = JSON.parse(decodeHeaders(headersList.get(X_GEO_HEADER) || "{}"))
+	const geo: GeoHeaderT = JSON.parse(decodeHeaders(headersList.get(X_GEO_HEADER) || "{}"))
 	const referrer = headersList.get(X_REFERRER_HEADER) || "undefined"
 
 	const { deviceType, browser } = parseDeviceAndBrowser(userAgent + userBrowser)

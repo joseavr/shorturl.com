@@ -3,7 +3,7 @@
  * Emojis will be converted to characters
  */
 export function encodeHeaders(str: string) {
-	return Buffer.from(JSON.stringify(str)).toString("base64")
+	return Buffer.from(str).toString("base64")
 }
 
 /**

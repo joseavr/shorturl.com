@@ -17,16 +17,20 @@ export default async function RedirectPage({
 
 	const { ipAddress, userAgent, referrer, deviceType, browser, geo } = await getMetaData()
 
-	const newgeo = JSON.parse(geo)
-
-	const loc = `${newgeo.city || "unknown"}, ${newgeo.country || "unknown"} ${newgeo.flag || ""}`
-
-	console.log("\n\nFROM REDIRECT PAGE:", newgeo)
+	const location = `${geo.city || "unknown"}, ${geo.country || "unknown"} ${geo.flag || ""}`
 
 	// Track the click
 	after(() => {
 		if (!urlData) return
-		trackUrlClick(urlData.id, ipAddress, userAgent, referrer, deviceType, browser, loc)
+		trackUrlClick(
+			urlData.id,
+			ipAddress,
+			userAgent,
+			referrer,
+			deviceType,
+			browser,
+			location
+		)
 	})
 
 	redirect(urlData.originalUrl)
