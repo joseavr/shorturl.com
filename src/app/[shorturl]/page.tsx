@@ -21,6 +21,8 @@ export default async function RedirectPage({
 
 	const loc = `${geo.city || "unknown"}, ${geo.country || "unknown"} ${geo.flag || ""}`
 
+	console.log(Object.keys(geo))
+	console.log(Object(loc))
 	console.log(geo.city, geo.country, geo.flag)
 	console.log(loc)
 
