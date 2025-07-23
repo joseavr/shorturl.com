@@ -19,22 +19,12 @@ export default async function RedirectPage({
 
 	console.log("\n\nFROM REDIRECT PAGE:", geo)
 
-	const location = `${geo.city || "unknown"}, ${geo.country || "unknown"} ${geo.flag || ""}`
-
-	console.log("\n\nBRUH:", location)
+	const loc = `${geo.city || "unknown"}, ${geo.country || "unknown"} ${geo.flag || ""}`
 
 	// Track the click
 	after(() => {
 		if (!urlData) return
-		trackUrlClick(
-			urlData.id,
-			ipAddress,
-			userAgent,
-			referrer,
-			deviceType,
-			browser,
-			location
-		)
+		trackUrlClick(urlData.id, ipAddress, userAgent, referrer, deviceType, browser, loc)
 	})
 
 	redirect(urlData.originalUrl)
