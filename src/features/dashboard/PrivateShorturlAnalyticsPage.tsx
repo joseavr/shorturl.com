@@ -4,13 +4,11 @@ import {
 	FeatherCalendar,
 	FeatherExternalLink
 } from "@subframe/core"
-import { getDay } from "date-fns"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { CopyButton } from "@/app/(marketing)/components/CopyButton"
 import { appUrl } from "@/const"
 import {
-	AreaChart,
 	Badge,
 	Breadcrumbs,
 	BreadcrumbsDivider,
@@ -27,6 +25,7 @@ import { ExportButton } from "./_components/ExportButton"
 import { FilterClickByDaysButton } from "./_components/FilterClickByDaysButton"
 import { ProfileDropdown } from "./_components/ProfileDropdown"
 import { RefreshButton } from "./_components/RefreshButton"
+import { ShorturlChart } from "./_components/shorturlChart"
 import { getUrlById } from "./services/get-url-by-id"
 import { getTopByCategory } from "./utils/get-top-category"
 import {
@@ -88,37 +87,6 @@ export default async function PrivateShorturlAnalyticsPage({ shortUrlId }: Props
 
 	// --- Top Devices ---
 	const [topDevices, deviceMax] = getTopByCategory(clicks, "deviceType")
-
-	// --- Top Locations ---
-	const [topLocations] = getTopByCategory(clicks, "location")
-
-	// TODO generateChartData(), filterXAxis='years'|'months'|'thisweek' and bycategory from queryParams,
-	// --- AreaChart Data (Top 3 Locations, Clicks per Day for Last Week) ---
-	const daysOfWeek = [
-		"Monday",
-		"Tuesday",
-		"Wednesday",
-		"Thursday",
-		"Friday",
-		"Saturday",
-		"Sunday"
-	]
-	const topLocationsForChart = topLocations.map((each) => each.location)
-	const chartData: any[] = daysOfWeek.map((day) => {
-		const entry: Record<string, any> = { Day: day }
-		for (const location of topLocationsForChart) {
-			entry[location] = 0
-		}
-		return entry
-	})
-	for (const c of clicksLastWeek) {
-		const location = c.location || "undefined"
-		if (!topLocationsForChart.includes(location)) continue
-		const dayIdx = getDay(new Date(c.clickedAt))
-		const dayName = daysOfWeek[dayIdx === 0 ? 6 : dayIdx - 1] // shift so 1=Monday->0, 0=Sunday->6
-		const entry = chartData.find((e) => e.Day === dayName)
-		if (entry) entry[location] += 1
-	}
 
 	return (
 		<DefaultPageLayout>
@@ -225,7 +193,7 @@ export default async function PrivateShorturlAnalyticsPage({ shortUrlId }: Props
 						</span>
 						<FilterClickByDaysButton />
 					</div>
-					<AreaChart categories={topLocationsForChart} data={chartData} index={"Day"} />
+					<ShorturlChart clicks={clicks} />
 				</div>
 				<div className="flex w-full flex-wrap items-start gap-6">
 					<div className="flex shrink-0 grow basis-0 flex-col items-start gap-6 rounded-md border border-neutral-border border-solid bg-default-background px-6 py-6 shadow-sm">
