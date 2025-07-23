@@ -23,7 +23,7 @@ export async function PrivateDashboardPage() {
 
 	return (
 		<DefaultPageLayout>
-			<div className="flex h-full w-full flex-col items-start gap-8 bg-default-background px-20 py-12">
+			<div className="flex h-full w-full flex-col items-start gap-8 bg-default-background px-24 py-12">
 				<div className="flex w-full flex-col items-start gap-4">
 					<div className="flex w-full flex-row items-center justify-between">
 						<div>

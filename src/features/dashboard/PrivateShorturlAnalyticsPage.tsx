@@ -90,7 +90,7 @@ export default async function PrivateShorturlAnalyticsPage({ shortUrlId }: Props
 
 	return (
 		<DefaultPageLayout>
-			<div className="flex w-full flex-col items-start gap-8 bg-default-background px-8 py-16">
+			<div className="flex w-full flex-col items-start gap-8 bg-default-background px-24 py-12">
 				<div className="flex w-full flex-col items-start gap-4">
 					<div className="flex w-full flex-row items-center justify-between">
 						<div>
